@@ -1,10 +1,8 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: false
+  become: false #change if want to be root, didn't at this time
   tasks:
-
-    
 
     - name: Ensure sqlite3 is installed
       package:
@@ -37,7 +35,6 @@
         dest: /home/ubuntu/nvr/users.db
         mode: push
       delegate_to: gittest
-      #become: false #if don't want to be root, depends how set up
 
     # - name: Run database update script on each server
     #   command: python3 /home/ubuntu/userdb/update_users.py
