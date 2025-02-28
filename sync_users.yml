@@ -1,0 +1,20 @@
+---
+- name: Sync Cathexis User Database
+  hosts: other_servers
+  become: yes
+  tasks:
+
+    - name: Copy the latest database from Axis
+      synchronize:
+        src: /usr/nvr/unitconfig/db/users.db
+        dest: /usr/nvr/unitconfig/db/users.db
+        mode: push
+      delegate_to: axis
+
+    - name: Run database update script on each server
+      command: python3 /usr/nvr/scripts/update_users.py
+
+    - name: Restart necessary services
+      service:
+        name: cathexis_service  # Replace with actual service name
+        state: restarted
