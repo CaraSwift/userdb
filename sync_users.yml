@@ -11,6 +11,31 @@
         mode: push
       delegate_to: axis
 
+    - name: Ensure sqlite3 is installed
+      package:
+        name: sqlite3
+        state: present
+
+    - name: Check if Users database exists
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND name='Users';"
+      register: db_check
+      ignore_errors: yes
+
+    - name: Create Users table if it doesn't exist
+      when: db_check.rc != 0  # If the previous check failed (no table found)
+      command: sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
+        name TEXT UNIQUE PRIMARY KEY,
+        is_enabled BOOL,
+        access_level INT,
+        unit_group INT,
+        language INT,
+        remote_access INT,
+        hide_inaccessible_resources INT,
+        can_change_own_password INT,
+        is_ldap_user INT,
+        currently_in_ldap INT
+        );"
+
     - name: Run database update script on each server
       command: python3 /home/ubuntu/userdb/update_users.py
 
