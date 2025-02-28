@@ -1,7 +1,7 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: yes
+  become: false
   tasks:
 
     
@@ -30,12 +30,14 @@
         is_ldap_user INT,
         currently_in_ldap INT
         );"
+
     - name: Copy the latest database from Axis
       synchronize:
         src: /home/ubuntu/nvr/users.db
         dest: /home/ubuntu/nvr/users.db
         mode: push
       delegate_to: gittest
+      #become: false #if don't want to be root, depends how set up
 
     # - name: Run database update script on each server
     #   command: python3 /home/ubuntu/userdb/update_users.py
