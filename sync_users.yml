@@ -6,15 +6,15 @@
 
     - name: Copy the latest database from Axis
       synchronize:
-        src: /usr/nvr/unitconfig/db/users.db
-        dest: /usr/nvr/unitconfig/db/users.db
+        src: /home/ubuntu/nvr/users.db
+        dest: /home/ubuntu/nvr/users.db
         mode: push
       delegate_to: axis
 
     - name: Run database update script on each server
-      command: python3 /usr/nvr/scripts/update_users.py
+      command: python3 /home/ubuntu/userdb/update_users.py
 
-    - name: Restart necessary services
-      service:
-        name: cathexis_service  # Replace with actual service name
-        state: restarted
+    # - name: Restart necessary services
+    #   service:
+    #     name: cathexis_service  # Replace with actual service name
+    #     state: restarted
