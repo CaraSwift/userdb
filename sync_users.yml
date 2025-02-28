@@ -9,7 +9,7 @@
         src: /home/ubuntu/nvr/users.db
         dest: /home/ubuntu/nvr/users.db
         mode: push
-      delegate_to: axis
+      delegate_to: gittest
 
     - name: Ensure sqlite3 is installed
       package:
