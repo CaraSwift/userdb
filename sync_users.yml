@@ -4,12 +4,7 @@
   become: yes
   tasks:
 
-    # - name: Copy the latest database from Axis
-    #   synchronize:
-    #     src: /home/ubuntu/nvr/users.db
-    #     dest: /home/ubuntu/nvr/users.db
-    #     mode: push
-    #   delegate_to: gittest
+    
 
     - name: Ensure sqlite3 is installed
       package:
@@ -35,9 +30,15 @@
         is_ldap_user INT,
         currently_in_ldap INT
         );"
+    - name: Copy the latest database from Axis
+      synchronize:
+        src: /home/ubuntu/nvr/users.db
+        dest: /home/ubuntu/nvr/users.db
+        mode: push
+      delegate_to: gittest
 
-    - name: Run database update script on each server
-      command: python3 /home/ubuntu/userdb/update_users.py
+    # - name: Run database update script on each server
+    #   command: python3 /home/ubuntu/userdb/update_users.py
 
     # - name: Restart necessary services
     #   service:
