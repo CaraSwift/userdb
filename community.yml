@@ -1,48 +1,29 @@
-- name: Sync passwords across servers using raw queries
+- name: Sync passwords across servers using raw SQLite queries
   hosts: all
   gather_facts: no
   tasks:
 
     - name: Get users and passwords from Server 1
-      community.general.sqlite3:
-        db: "home/ubuntu/nvr/users.db"
-        query: "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
       register: server1_passwords
       delegate_to: server1
 
     - name: Get users and passwords from Server 2
-      community.general.sqlite3:
-        db: "home/ubuntu/nvr/users.db"
-        query: "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
       register: server2_passwords
       delegate_to: server2
 
     # - name: Merge passwords on Main Server
-    #   community.general.sqlite3:
-    #     db: "/path/to/main_server.db"
-    #     query: |
-    #       INSERT INTO Passwords (name, password)
-    #       VALUES {{ item.name }}, {{ item.password }}
-    #       ON CONFLICT(name) DO UPDATE SET password=excluded.password;
-    #   loop: "{{ server1_passwords.query_result + server2_passwords.query_result }}"
+    #   command: sqlite3 /home/ubuntu/nvr/users.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
+    #   loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
     #   delegate_to: main_server
 
     # - name: Push final passwords from Main Server to Server 1
-    #   community.general.sqlite3:
-    #     db: "/path/to/server1.db"
-    #     query: |
-    #       INSERT INTO Passwords (name, password)
-    #       VALUES {{ item.name }}, {{ item.password }}
-    #       ON CONFLICT(name) DO UPDATE SET password=excluded.password;
-    #   loop: "{{ server1_passwords.query_result + server2_passwords.query_result }}"
+    #   command: sqlite3 /path/to/server1.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
+    #   loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
     #   delegate_to: server1
 
     # - name: Push final passwords from Main Server to Server 2
-    #   community.general.sqlite3:
-    #     db: "/path/to/server2.db"
-    #     query: |
-    #       INSERT INTO Passwords (name, password)
-    #       VALUES {{ item.name }}, {{ item.password }}
-    #       ON CONFLICT(name) DO UPDATE SET password=excluded.password;
-    #   loop: "{{ server1_passwords.query_result + server2_passwords.query_result }}"
+    #   command: sqlite3 /path/to/server2.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
+    #   loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
     #   delegate_to: server2
