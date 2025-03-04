@@ -44,13 +44,6 @@
       command: >
         sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);"
 
-    # - name: Copy the latest database from Axis
-    #   synchronize:
-    #     src: /home/ubuntu/nvr/users.db
-    #     dest: /home/ubuntu/nvr/users.db
-    #     mode: push
-    #   delegate_to: gittest
-
     - name: Get local password table hash
       command: sh -c "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;' | sha256sum"
       register: local_password_hash
@@ -69,6 +62,14 @@
         delegate_to: gittest
         when: local_password_hash.stdout != remote_password_hash.stdout
 
+    - name: Copy the latest database from Axis
+      synchronize:
+        src: /home/ubuntu/nvr/users.db
+        dest: /home/ubuntu/nvr/users.db
+        mode: push
+      delegate_to: gittest
+    
+    
     # - name: Restart necessary services
     #   service:
     #     name: cathexis_service  # Replace with actual service name
