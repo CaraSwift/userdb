@@ -9,13 +9,13 @@
         name: sqlite3
         state: present
 
-    - name: Check if Users database exists
-      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND name='Users';"
+    - name: Check if Users and Password tables exist
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
       register: db_check
       ignore_errors: yes
 
     - name: Create Users table if it doesn't exist
-      when: db_check.rc != 0  # If the previous check failed (no table found)
+      when: db_check.rc != 0
       command: sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
         name TEXT UNIQUE PRIMARY KEY,
         is_enabled BOOL,
@@ -27,7 +27,19 @@
         can_change_own_password INT,
         is_ldap_user INT,
         currently_in_ldap INT
-        );"
+      );"
+
+    - name: Create Passwords table if it doesn't exist
+      when: db_check.rc != 0
+      command: sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Passwords (
+        name TEXT,
+        type TEXT, -- ha1/des
+        password TEXT
+      );"
+
+    - name: Create Passwords index if it doesn't exist
+      when: db_check.rc != 0
+      command: sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);" 
 
     - name: Copy the latest database from Axis
       synchronize:
@@ -35,9 +47,6 @@
         dest: /home/ubuntu/nvr/users.db
         mode: push
       delegate_to: gittest
-
-    # - name: Run database update script on each server
-    #   command: python3 /home/ubuntu/userdb/update_users.py
 
     # - name: Restart necessary services
     #   service:
