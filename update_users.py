@@ -1,37 +1,65 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import AnsibleModule
 import sqlite3
+import hashlib
+import os
 
-DB_PATH = "/home/ubuntu/nvr/users.db"
-AXIS_DB_PATH = "/home/ubuntu/nvr/users_axis.db"  # Temp copy from main server
+def get_users_and_passwords(db_path):
+    """Retrieve users who can change their password along with their password hashes."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
-def sync_users():
-    conn = sqlite3.connect(DB_PATH)
-    axis_conn = sqlite3.connect(AXIS_DB_PATH)
-    cur = conn.cursor()
-    axis_cur = axis_conn.cursor()
-
-    # Add new users
-    cur.execute("""
-        INSERT INTO Users (name, is_enabled, access_level, unit_group, language, remote_access, hide_inaccessible_resources, can_change_own_password, is_ldap_user, currently_in_ldap) 
-        SELECT name, 1, 0, 0, 0, 1, 0, 1, 0, 0
-        FROM users
-        WHERE name NOT IN (SELECT name FROM Users)
+    cursor.execute("""
+        SELECT u.name, p.password
+        FROM Users u
+        JOIN Passwords p ON u.name = p.name
+        WHERE u.can_change_own_password = 1
     """)
+    users = {row[0]: row[1] for row in cursor.fetchall()}
 
-    # Update modified users
-    cur.execute("""
-        UPDATE Users
-        SET is_enabled = 1, access_level = 0, unit_group = 0, language = 0, remote_access = 1, hide_inaccessible_resources = 0, can_change_own_password = 1, is_ldap_user = 0, currently_in_ldap = 0
-        WHERE name IN (SELECT name FROM users WHERE Users.is_enabled != 1 OR Users.access_level != 0)
-    """)
+    conn.close()
+    return users
 
-    # Sync deleted users
-    cur.execute("""
-        DELETE FROM Users
-        WHERE name NOT IN (SELECT name FROM users)
-    """)
+def sync_passwords(source_db, target_db):
+    """Compare passwords and update if necessary."""
+    source_data = get_users_and_passwords(source_db)
+    target_data = get_users_and_passwords(target_db)
+
+    conn = sqlite3.connect(target_db)
+    cursor = conn.cursor()
+
+    updates = 0
+    for user, password in source_data.items():
+        if user not in target_data or target_data[user] != password:
+            cursor.execute("""
+                INSERT INTO Passwords (name, password)
+                VALUES (?, ?)
+                ON CONFLICT(name) DO UPDATE SET password=excluded.password
+            """, (user, password))
+            updates += 1
 
     conn.commit()
     conn.close()
-    axis_conn.close()
 
-sync_users()
+    return updates
+
+def main():
+    module_args = dict(
+        source_db=dict(type="str", required=True),
+        target_db=dict(type="str", required=True)
+    )
+
+    module = AnsibleModule(argument_spec=module_args)
+
+    source_db = module.params["source_db"]
+    target_db = module.params["target_db"]
+
+    updates = sync_passwords(source_db, target_db)
+
+    module.exit_json(changed=updates > 0, msg=f"{updates} passwords synchronized.")
+
+if __name__ == "__main__":
+    main()
+
+
