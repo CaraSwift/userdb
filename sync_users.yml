@@ -56,7 +56,7 @@
       register: local_password_hash
 
     - name: Get remote password table hash from Axis
-      command: ssh gittest "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;'" | sha256sum
+      command: ssh server2 "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;'" | sha256sum
       register: remote_password_hash
 
     - name: Compare password hashes and decide action
