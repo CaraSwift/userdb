@@ -65,7 +65,7 @@
         synchronize:
           src: /home/ubuntu/nvr/users.db
           dest: /home/ubuntu/nvr/users.db
-          mode: push
+          mode: pull
         delegate_to: server2
         when: local_password_hash.stdout != remote_password_hash.stdout
 
