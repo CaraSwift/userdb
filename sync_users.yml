@@ -61,13 +61,13 @@
 
     - name: Compare password hashes and decide action
       block:
-    - name: If password hashes are different, sync tables
-      synchronize:
-        src: /home/ubuntu/nvr/users.db
-        dest: /home/ubuntu/nvr/users.db
-        mode: push
-      delegate_to: gittest
-      when: local_password_hash.stdout != remote_password_hash.stdout
+      - name: If password hashes are different, sync tables
+        synchronize:
+          src: /home/ubuntu/nvr/users.db
+          dest: /home/ubuntu/nvr/users.db
+          mode: push
+        delegate_to: gittest
+        when: local_password_hash.stdout != remote_password_hash.stdout
 
     # - name: Restart necessary services
     #   service:
