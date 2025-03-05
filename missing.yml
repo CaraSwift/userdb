@@ -20,12 +20,7 @@
       set_fact:
         gittest_users_list: "{{ gittest_users.stdout_lines | map('split', '|') | list }}"
         remote_users_list: "{{ remote_users.stdout_lines | map('split', '|') | list }}"
-
-    - name: Ensure last_modified field exists (replace empty or missing values)
-      set_fact:
-        gittest_users_list: "{{ gittest_users_list | map('community.general.dictsort', 'name') | map('setattr', 10, (item[10] if item[10] != '' else '1970-01-01 00:00:00')) | list }}"
-        remote_users_list: "{{ remote_users_list | map('community.general.dictsort', 'name') | map('setattr', 10, (item[10] if item[10] != '' else '1970-01-01 00:00:00')) | list }}"
-
+    
     - name: Debug gittest_users_list
       debug:
         var: gittest_users_list
