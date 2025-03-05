@@ -1,0 +1,65 @@
+- name: Sync Cathexis User Database
+  hosts: other_servers
+  become: false  # Change if root access is required
+  tasks:
+
+    - name: Ensure sqlite3 is installed
+      package:
+        name: sqlite3
+        state: present
+
+    - name: Check if Users and Passwords tables exist
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND (name='Users' OR name='Passwords');"
+      register: db_check
+      ignore_errors: yes
+
+    - name: Create Users table if it doesn't exist
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
+          name TEXT UNIQUE PRIMARY KEY,
+          is_enabled BOOL,
+          access_level INT,
+          unit_group INT,
+          language INT,
+          remote_access INT,
+          hide_inaccessible_resources INT,
+          can_change_own_password INT,
+          is_ldap_user INT,
+          currently_in_ldap INT
+        );"
+
+    - name: Create Passwords table if it doesn't exist
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Passwords (
+          name TEXT,
+          type TEXT,
+          password TEXT
+        );"
+
+    - name: Create Passwords index if it doesn't exist
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);"
+
+    - name: Sync passwords from Server 1 to Main Server
+      sync_passwords:
+        source_db: "/home/ubuntu/nvr/users.db"
+        target_db: "/home/ubuntu/nvr/main_server.db"
+      delegate_to: gittest
+
+    - name: Sync passwords from Server 2 to Main Server
+      sync_passwords:
+        source_db: "/home/ubuntu/nvr/users.db"
+        target_db: "/home/ubuntu/nvr/main_server.db"
+      delegate_to: gittest
+
+    - name: Push final passwords from Main Server to Server 1
+      sync_passwords:
+        source_db: "/home/ubuntu/nvr/main_server.db"
+        target_db: "/home/ubuntu/nvr/users.db"
+      delegate_to: other_servers
+
+    - name: Push final passwords from Main Server to Server 2
+      sync_passwords:
+        source_db: "/home/ubuntu/nvr/main_server.db"
+        target_db: "/home/ubuntu/nvr/users.db"
+      delegate_to: other_servers
