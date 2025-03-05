@@ -18,12 +18,12 @@
       loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
       delegate_to: gittest
 
-    # - name: Push final passwords from Main Server to Server 1
-    #   command: sqlite3 /path/to/server1.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
-    #   loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
-    #   delegate_to: server1
+    - name: Push final passwords from Main Server to Server 1
+      command: sqlite3 /path/to/server1.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
+      loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
+      delegate_to: server1
 
-    # - name: Push final passwords from Main Server to Server 2
-    #   command: sqlite3 /path/to/server2.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
-    #   loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
-    #   delegate_to: server2
+    - name: Push final passwords from Main Server to Server 2
+      command: sqlite3 /path/to/server2.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
+      loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
+      delegate_to: server2
