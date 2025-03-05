@@ -6,22 +6,19 @@ import hashlib
 import os
 
 def get_users_and_passwords(db_path):
-    """Retrieve users who can change their password along with their password hashes."""
-    check_db_exists(db_path)
+    """Retrieve users and their password hashes from the Passwords table."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("""
         SELECT name, password
         FROM Passwords
-        WHERE name IN (SELECT name FROM users WHERE can_change_own_password = 1);
     """)
     users = {row[0]: row[1] for row in cursor.fetchall()}
 
     conn.close()
-    
-    print(f"Users fetched from {db_path}: {users}")  # Debugging line
     return users
+
 
 def sync_passwords(source_db, target_db):
     """Compare passwords and update if necessary."""
