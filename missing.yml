@@ -21,6 +21,14 @@
         gittest_users_list: "{{ gittest_users.stdout_lines | map('split', '|') | list }}"
         remote_users_list: "{{ remote_users.stdout_lines | map('split', '|') | list }}"
 
+    - name: Debug gittest_users_list
+      debug:
+        var: gittest_users_list
+
+    - name: Debug remote_users_list
+      debug:
+        var: remote_users_list
+
     - name: Identify missing users
       set_fact:
         missing_users: "{{ gittest_users_list | rejectattr(0, 'in', remote_users_list | map(attribute=0) | list) | list }}"
