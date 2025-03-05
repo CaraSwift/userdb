@@ -1,5 +1,5 @@
 - name: Sync passwords across servers using raw SQLite queries
-  hosts: all
+  hosts: gittest
   gather_facts: no
   tasks:
 

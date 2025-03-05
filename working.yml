@@ -1,0 +1,46 @@
+---
+- name: Sync Cathexis User Database
+  hosts: other_servers
+  become: false  # Change if want to be root, didn't at this time
+  tasks:
+
+    - name: Ensure sqlite3 is installed
+      package:
+        name: sqlite3
+        state: present
+
+    - name: Check if Users and Password tables exist
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
+      register: db_check
+      ignore_errors: yes
+
+    - name: Create Users table if it doesn't exist
+      when: db_check.rc != 0
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
+          name TEXT UNIQUE PRIMARY KEY,
+          is_enabled BOOL,
+          access_level INT,
+          unit_group INT,
+          language INT,
+          remote_access INT,
+          hide_inaccessible_resources INT,
+          can_change_own_password INT,
+          is_ldap_user INT,
+          currently_in_ldap INT
+        );"
+
+    - name: Create Passwords table if it doesn't exist
+      when: db_check.rc != 0
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Passwords (
+          name TEXT,
+          type TEXT, -- ha1/des
+          password TEXT
+        );"
+
+    - name: Create Passwords index if it doesn't exist
+      when: db_check.rc != 0
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);"
+    
