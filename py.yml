@@ -42,24 +42,24 @@
 
     - name: Sync passwords from Server 1 to Main Server
       update_users:
-        source_db: "/home/ubuntu/nvr/users.db"
+        source_db: "/home/ubuntu/nvr/users1.db"
         target_db: "/home/ubuntu/nvr/users.db"
       delegate_to: gittest
 
     - name: Sync passwords from Server 2 to Main Server
       update_users:
-        source_db: "/home/ubuntu/nvr/users.db"
+        source_db: "/home/ubuntu/nvr/users2.db"
         target_db: "/home/ubuntu/nvr/users.db"
       delegate_to: gittest
 
     - name: Push final passwords from Main Server to Server 1
       update_users:
         source_db: "/home/ubuntu/nvr/users.db"
-        target_db: "/home/ubuntu/nvr/users.db"
+        target_db: "/home/ubuntu/nvr/users1.db"
       delegate_to: other_servers
 
     - name: Push final passwords from Main Server to Server 2
       update_users:
         source_db: "/home/ubuntu/nvr/users.db"
-        target_db: "/home/ubuntu/nvr/users.db"
+        target_db: "/home/ubuntu/nvr/users2.db"
       delegate_to: other_servers
