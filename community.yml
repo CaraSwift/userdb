@@ -9,7 +9,7 @@
       delegate_to: server1
 
     - name: Get users and passwords from Server 2
-      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
+      command: sqlite3 /home/ubuntu/nvr/users2.db "SELECT name, password FROM Passwords WHERE name IN (SELECT name FROM Users WHERE can_change_own_password = 1);"
       register: server2_passwords
       delegate_to: server2
 
