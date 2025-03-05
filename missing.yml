@@ -1,0 +1,37 @@
+- name: Sync users from gittest to server1 and server2
+  hosts: all
+  become: yes
+  vars:
+    db_path: "/home/ubuntu/nvr/users.db"
+  
+  tasks:
+    - name: Fetch user list from gittest
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM users;"
+      delegate_to: gittest
+      register: gittest_users
+      changed_when: false
+
+    - name: Fetch user list from remote servers
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM users;"
+      register: remote_users
+      changed_when: false
+
+    - name: Parse user lists into structured data
+      set_fact:
+        gittest_users_list: "{{ gittest_users.stdout_lines | map('split', '|') | list }}"
+        remote_users_list: "{{ remote_users.stdout_lines | map('split', '|') | list }}"
+
+    - name: Identify missing users
+      set_fact:
+        missing_users: "{{ gittest_users_list | rejectattr(0, 'in', remote_users_list | map(attribute=0) | list) | list }}"
+
+    - name: Insert missing users into remote databases
+      command: >
+        sqlite3 "{{ db_path }}" "INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, hide_inaccessible_resources, can_change_own_password, is_ldap_user, currently_in_ldap, last_modified)
+        VALUES ('{{ item[0] }}', {{ item[1] }}, {{ item[2] }}, {{ item[3] }}, {{ item[4] }}, {{ item[5] }}, {{ item[6] }}, {{ item[7] }}, {{ item[8] }}, {{ item[9] }}, '{{ item[10] }}');"
+      with_items: "{{ missing_users }}"
+      when: missing_users | length > 0
+
+    - name: Identify users needing updates
+      set_fact:
+        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) | selectattr(10, '>', remote_users_list | selectattr(0, 'equalto', item[0]) | map(attribute=10) | first) | list }}"
