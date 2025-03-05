@@ -12,7 +12,7 @@ def get_users_and_passwords(db_path):
 
     cursor.execute("""
         SELECT u.name, p.password
-        FROM Users u
+        FROM users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1
     """)
