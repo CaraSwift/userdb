@@ -7,18 +7,21 @@ import os
 
 def get_users_and_passwords(db_path):
     """Retrieve users who can change their password along with their password hashes."""
+    check_db_exists(db_path)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("""
         SELECT u.name, p.password
-        FROM users u
+        FROM Users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1
     """)
     users = {row[0]: row[1] for row in cursor.fetchall()}
 
     conn.close()
+    
+    print(f"Users fetched from {db_path}: {users}")  # Debugging line
     return users
 
 def sync_passwords(source_db, target_db):
