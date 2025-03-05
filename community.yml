@@ -16,7 +16,7 @@
     - name: Merge passwords on Main Server
       command: sqlite3 /home/ubuntu/nvr/users.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
       loop: "{{ server1_passwords.stdout_lines + server2_passwords.stdout_lines }}"
-      delegate_to: main_server
+      delegate_to: gittest
 
     # - name: Push final passwords from Main Server to Server 1
     #   command: sqlite3 /path/to/server1.db "INSERT INTO Passwords (name, password) VALUES ('{{ item.split('|')[0] }}', '{{ item.split('|')[1] }}') ON CONFLICT(name) DO UPDATE SET password=excluded.password;"
