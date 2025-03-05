@@ -12,10 +12,9 @@ def get_users_and_passwords(db_path):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT u.name, p.password
-        FROM Users u
-        JOIN Passwords p ON u.name = p.name
-        WHERE u.can_change_own_password = 1
+        SELECT name, password
+        FROM Passwords
+        WHERE name IN (SELECT name FROM users WHERE can_change_own_password = 1);
     """)
     users = {row[0]: row[1] for row in cursor.fetchall()}
 
