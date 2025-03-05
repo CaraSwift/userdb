@@ -42,8 +42,8 @@
 
     - name: Sync passwords from Server 1 to Main Server
       update_users:
-        source_db: "/home/ubuntu/nvr/users1.db"
-        target_db: "/home/ubuntu/nvr/users.db"
+        source_db: "/home/ubuntu/nvr/users.db"
+        target_db: "/home/ubuntu/nvr/users1.db"
       delegate_to: gittest
 
     - name: Sync passwords from Server 2 to Main Server
