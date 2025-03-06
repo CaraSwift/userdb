@@ -147,8 +147,8 @@
         inconsistent_users: >-
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
-            groupby('0') |  # Group by name
-            map('list') | selectattr('1', 'unique')  # Check if password hashes differ
+            groupby('0') |
+            map('list') | selectattr('1', 'unique')
           }}
 
 
