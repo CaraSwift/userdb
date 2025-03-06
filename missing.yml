@@ -147,10 +147,10 @@
         users_to_update: >-
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
-            groupby('0') |  # Group by name
+            groupby('0') |  
             map(
-              'last' | selectattr('1', 'eq', item[0][1]) |  # Group by type
-              selectattr('last_modified', '>', item[0][2]) |  # Compare based on last_modified timestamp
+              'last' | selectattr('1', 'eq', item[0][1]) | 
+              selectattr('last_modified', '>', item[0][2]) |  
               first
             )
           }}
