@@ -148,10 +148,10 @@
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
             map('community.general.dict', 
-                { 'name': item[0], 'password': item[1], 'last_modified': item[2] }) |
+                { 'name': item[0], 'password': item[1], 'last_modified': item[3] }) |
             groupby('name') |
             map(
               'last',
-              selectattr('last_modified', 'lt', item[2]) | first
+              selectattr('last_modified', 'lt', item[3]) | first
             )
           }}
