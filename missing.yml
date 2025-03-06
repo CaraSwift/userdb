@@ -31,8 +31,17 @@
     - name: Make updates to users
       command: >
         sqlite3 "{{ db_path }}" "UPDATE users
-        (name, is_enabled, access_level, unit_group, language, remote_access, hide_inaccessible_resources, can_change_own_password, is_ldap_user, currently_in_ldap, last_modified)
-        VALUES ('{{ item[0] }}', {{ item[1] | int }}, {{ item[2] | int }}, {{ item[3] | int }}, {{ item[4] | int }}, {{ item[5] | int }}, {{ item[6] | int }}, {{ item[7] | int }}, {{ item[8] | int }}, {{ item[9] | int }}, '{{ item[10] }}');"
+        SET is_enabled = '{{ item[1] }}',
+          access_level = '{{ item[2] }}',
+          unit_group = '{{ item[3] }}',
+          language = '{{ item[4] }}',
+          remote_access = '{{ item[5] }}',
+          hide_inaccessible_resources = '{{ item[6] }}',
+          can_change_own_password = '{{ item[7] }}',
+          is_ldap_user = '{{ item[8] }}',
+          currently_in_ldap = '{{ item[9] }}',
+          last_modified = '{{ item[10] }}'
+        WHERE name = '{{ item[0] }}';"
       loop: "{{ users_to_update }}" 
       loop_control:
         label: "{{ item[0] }}"
