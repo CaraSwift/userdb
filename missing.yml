@@ -36,7 +36,7 @@
       loop: "{{ users_to_update }}" 
       loop_control:
         label: "{{ item[0] }}"
-      when: missing_users | length > 0
+      when: users_to_update | length > 0
  
 
     - name: Identify missing users
