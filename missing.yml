@@ -150,5 +150,5 @@
             groupby(0) |
             map(
               'last',
-              selectattr(9, 'lt', item[9]) | first)
+              selectattr(10, 'lt', item[10]) | first)
           }}
