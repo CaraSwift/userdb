@@ -27,7 +27,8 @@
 
     - name: Debug missing users
       debug:
-        var: missing_users
+        msg: "{{ item }}"
+      with_items: "{{ missing_users }}"
 
     - name: Insert missing users into remote databases
       command: >
