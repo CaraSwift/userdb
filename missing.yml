@@ -1,7 +1,7 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: false  # Change if want to be root, didn't at this time
+  become: false 
   tasks:
 
     - name: Ensure sqlite3 is installed
@@ -93,7 +93,6 @@
         label: "{{ item[0] }}"
       when: users_to_update | length > 0
  
-
     - name: Identify missing users
       set_fact:
         missing_users: "{{ gittest_users_list | rejectattr(0, 'in', remote_users_list | map(attribute=0) | list) | list }}"
@@ -112,5 +111,27 @@
         label: "{{ item[0] }}" 
       when: missing_users | length > 0
 
-
+- name: Sync passwords
+  hosts: all
+  become: yes
+  vars:
+    db_path: "/home/ubuntu/nvr/users.db"
     
+  tasks:
+      - name: Fetch user list from gittest
+        command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+        delegate_to: gittest
+        register: gittest_users
+        changed_when: false
+
+      - name: Fetch user list from remote servers
+        command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+        delegate_to: server1
+        register: server_1
+        changed_when: false
+
+      - name: Fetch user list from remote servers
+        command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+        delegate_to: server2
+        register: server_2
+        changed_when: false 
