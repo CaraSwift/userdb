@@ -147,11 +147,10 @@
         users_to_update: >-
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
-            map('community.general.dict', 
-                { 'name': item[0], 'password': item[1], 'last_modified': item[3] }) |
-            groupby('name') |
+            groupby([0, 1]) |  # Group by both name and type
+            map('last') |  # Get the last element in each group (the most recent one)
             map(
-              'last',
-              selectattr('last_modified', 'lt', item[3]) | first
+              selectattr('last_modified', '>', item[2]) | first  # Compare based on last_modified timestamp
             )
           }}
+
