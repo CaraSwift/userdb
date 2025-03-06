@@ -24,8 +24,18 @@
     - name: Identify users needing updates
       set_fact:
         users_to_update: >-
-          {{ gittest_users_list | selectattr('0', 'in', remote_users_list | map(attribute='0') | list) 
-          | selectattr('10', '>', remote_users_list | selectattr('0', 'equalto', user[0]) | map(attribute='10') | first) | list }}
+          {{
+            gittest_users_list 
+            | selectattr('0', 'in', remote_users_list | map(attribute='0') | list) 
+            | selectattr('10', '>', 
+                remote_users_list
+                | selectattr('0', 'equalto', user[0]) 
+                | map(attribute='10') 
+                | default([])  # Ensure we don't try to access an empty list
+                | first | default('2000-01-01 00:00:00')  # Set a fallback date
+            ) 
+            | list
+          }}
       loop: "{{ gittest_users_list }}"
       loop_control:
         loop_var: user
