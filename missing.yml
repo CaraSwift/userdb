@@ -121,7 +121,7 @@
       - name: Fetch user list from gittest
         command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
         delegate_to: gittest
-        register: gittest_users
+        register: gittest_password
         changed_when: false
 
       - name: Fetch user list from remote servers
@@ -135,3 +135,9 @@
         delegate_to: server2
         register: server_2
         changed_when: false 
+
+      - name: Parse user lists into structured data
+        set_fact:
+          gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+          server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
+          server_2_list: "{{ server_2.stdout_lines | map('split', '|') | list }}"
