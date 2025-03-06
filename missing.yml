@@ -142,13 +142,13 @@
         server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
         server_2_list: "{{ server_2.stdout_lines | map('split', '|') | list }}"
 
-    - name: Identify users with mismatched passwords
+    - name: Identify users needing updates based on the latest timestamp in Password field
       set_fact:
-        inconsistent_users: >-
+        users_to_update: >-
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
-            groupby('0') |
-            map('list') | selectattr('1', 'unique')
+            groupby(0) |
+            map(
+              'last',
+              selectattr(2, 'lt', item[2]) | first)
           }}
-
-
