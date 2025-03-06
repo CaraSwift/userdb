@@ -147,8 +147,8 @@
         users_to_update: >-
           {{
             gittest_password_list | union(server_1_list) | union(server_2_list) |
-            groupby([0, 1]) |  # Group by both name and type
-            map('last') |  # Get the last element in each group (the most recent one)
+            groupby([0, 1]) |  
+            map('last') |
             map(
               selectattr('last_modified', '>', item[2]) | first
             )
