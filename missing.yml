@@ -150,7 +150,7 @@
             groupby([0, 1]) |  # Group by both name and type
             map('last') |  # Get the last element in each group (the most recent one)
             map(
-              selectattr('last_modified', '>', item[2]) | first  # Compare based on last_modified timestamp
+              selectattr('last_modified', '>', item[2]) | first
             )
           }}
 
