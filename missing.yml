@@ -41,4 +41,4 @@
 
     - name: Identify users needing updates
       set_fact:
-        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) | selectattr(10, '>', remote_users_list | selectattr(0, 'equalto', item[0]) | map(attribute=10) | first) | list }}"
+        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list)"
