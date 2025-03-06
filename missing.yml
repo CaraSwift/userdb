@@ -119,55 +119,22 @@
     
   tasks:
 
-    # - name: Fetch user list from gittest
-    #   command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
-    #   delegate_to: gittest
-    #   register: gittest_password
-    #   changed_when: false
-
-    # - name: Fetch user list from remote servers
-    #   command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
-    #   delegate_to: server1
-    #   register: server_1
-    #   changed_when: false
-
-    # - name: Fetch user list from remote servers
-    #   command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
-    #   delegate_to: server2
-    #   register: server_2
-    #   changed_when: false 
-
-    - name: Get gittest password table hash
-      command: sh -c "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;' | sha256sum"
+    - name: Fetch user list from gittest
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       delegate_to: gittest
       register: gittest_password
+      changed_when: false
 
-    - name: Get server1 password table hash from Axis
-      command: sh -c "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;' | sha256sum"
+    - name: Fetch user list from remote servers
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       delegate_to: server1
       register: server_1
       changed_when: false
 
-    - name: Get server2 password table hash from Axis
-      command: sh -c "sqlite3 /home/ubuntu/nvr/users.db 'SELECT password FROM Passwords;' | sha256sum"
-      delegate_to: server1
+    - name: Fetch user list from remote servers
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+      delegate_to: server2
       register: server_2
-      changed_when: false
+      changed_when: false 
 
-    # - name: Parse user lists into structured data
-    #   set_fact:
-    #     gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-    #     server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
-    #     server_2_list: "{{ server_2.stdout_lines | map('split', '|') | list }}"
-
-    - name: Identify users needing updates based on the latest timestamp in Password field
-      set_fact:
-        users_to_update: >-
-          {{
-            gittest_password_list | union(server_1_list) | union(server_2_list) |
-            groupby(0) |
-            map(
-              'last',
-              selectattr(2, 'lt', item[2]) | first)
-          }} 
 
