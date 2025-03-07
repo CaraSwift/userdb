@@ -128,11 +128,6 @@
       loop_control:
         loop_var: user
 
-    - name: Update password on gittest
-      command: >
-        sqlite3 /home/ubuntu/nvr/users.db "UPDATE Passwords SET password = '{{ item[1] }}' WHERE name = '{{ item[0] }}';"
-      loop: "{{ gittest_password.stdout_lines | map('split', '|') }}"
-      loop_control:
-        loop_var: item
-      when: 
-        - (gittest_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
+    - name: debug3
+      debug:
+        var: passwords_to_update
