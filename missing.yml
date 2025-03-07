@@ -114,11 +114,13 @@
 
     - name: Identify passwords needing updates
       set_fact:
-        passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list) | selectattr(1, 'equalto', server_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=1) | first | default('')) | list }}"
+        passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list) 
+          | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first | default('')) 
+          | list }}"
       loop: "{{ server_password_list }}"
       loop_control:
-        loop_var: user    
-
+        loop_var: user
+  
     - name: debug updates
       debug: 
         var: passwords_to_update
