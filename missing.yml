@@ -32,6 +32,7 @@
           is_ldap_user INT,
           currently_in_ldap INT
         );"
+      changed_when: false  
 
     - name: Create Passwords table if it doesn't exist
       when: "'passwords' not in db_checksqlite3.stdout"
@@ -41,6 +42,7 @@
           type TEXT, -- ha1/des
           password TEXT
         );"
+      changed_when: false  
 
     - name: Check if Passwords index exists
       command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
