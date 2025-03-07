@@ -134,8 +134,8 @@
 
     - name: Identify users needing updates
       set_fact:
-        passwords_to_update: "{{ gittest_password_list | selectattr(0, 'in', server_1_list | map(attribute=0) | list) | selectattr(2, '>', server_1_list | selectattr(0, 'equalto', user[0]) | map(attribute=3) | first | default('')) | list }}"
-      loop: "{{ gittest_passwords_list }}"
+        passwords_to_update: "{{ gittest_password_list | selectattr(0, 'in', server_1_list | map(attribute=0) | list) | selectattr(2, '>', (server_1_list | selectattr(0, 'equalto', password[0]) | map(attribute=3) | first | default(''))) | list }}"
+      loop: "{{ gittest_password_list }}"
       loop_control:
         loop_var: password
 
