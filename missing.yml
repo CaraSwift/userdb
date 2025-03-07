@@ -111,7 +111,7 @@
         sqlite3 /home/ubuntu/nvr/users.db "INSERT INTO users
           (name, is_enabled, access_level, unit_group, language, remote_access, hide_inaccessible_resources, can_change_own_password, is_ldap_user, currently_in_ldap)
           VALUES ('{{ item[0] }}', '{{ item[1] }}', '{{ item[2] }}', '{{ item[3] }}', '{{ item[4] }}', '{{ item[5] }}', '{{ item[6] }}', '{{ item[7] }}', '{{ item[8] }}', '{{ item[9] }}');"
-      loop: "{{ users_to_insert }}"
+      loop: "{{ missing_users }}"
       loop_control:
         loop_var: item
 
