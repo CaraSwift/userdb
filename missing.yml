@@ -99,13 +99,23 @@
       register: gittest_password
       changed_when: false
 
-    - name: Fetch password list from server1
+    - name: Fetch password list from servers
       command: sqlite3 "{{ db_path }}" "SELECT u.name, p.password
         FROM users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
+
+    - name: Parse user lists into structured data
+      set_fact:
+        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
+
+    - name: debug 
+      debug: 
+        var: server_password 
+
 
 
     # - name: Parse password lists into structured data
