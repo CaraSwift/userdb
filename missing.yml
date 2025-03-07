@@ -115,19 +115,19 @@
     
   tasks:
 
-    - name: Fetch user list from gittest
+    - name: Fetch password list from gittest
       command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       delegate_to: gittest
       register: gittest_password
       changed_when: false
 
-    - name: Fetch user list from remote servers
+    - name: Fetch password list from remote servers
       command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       delegate_to: server1
       register: server_1
       changed_when: false
 
-    - name: Parse user lists into structured data
+    - name: Parse password lists into structured data
       set_fact:
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
         server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
@@ -135,9 +135,9 @@
     - name: Identify users needing updates
       set_fact:
         passwords_to_update: "{{ gittest_password_list | selectattr(0, 'in', server_1_list | map(attribute=0) | list) | selectattr(2, '>', server_1_list | selectattr(0, 'equalto', user[0]) | map(attribute=3) | first | default('')) | list }}"
-      loop: "{{ gittest_users_list }}"
+      loop: "{{ gittest_passwords_list }}"
       loop_control:
-        loop_var: user
+        loop_var: password
 
     - name: Make updates to users
       command: >
