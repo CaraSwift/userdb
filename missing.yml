@@ -11,11 +11,12 @@
 
     - name: Check if Users and Password tables exist
       command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
-      register: db_check
+      register: db_checksqlite3
       changed_when: false
+      failed_when: false
 
     - name: Create Users table if it doesn't exist
-      when: db_check.rc != 0
+      when: "'users' not in db_checksqlite3.stdout"
       command: >
         sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
           name TEXT UNIQUE PRIMARY KEY,
@@ -31,7 +32,7 @@
         );"
 
     - name: Create Passwords table if it doesn't exist
-      when: db_check.rc != 0
+      when: "'passwords' not in db_checksqlite3.stdout"
       command: >
         sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Passwords (
           name TEXT,
@@ -39,8 +40,14 @@
           password TEXT
         );"
 
+    - name: Check if Passwords index exists
+      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
+      register: db_check_index
+      changed_when: false
+      failed_when: false
+
     - name: Create Passwords index if it doesn't exist
-      when: db_check.rc != 0
+      when: "'Passwords_name_type' not in db_check_index.stdout"
       command: >
         sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);"
         
