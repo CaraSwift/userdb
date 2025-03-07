@@ -24,17 +24,6 @@
         dest: "{{ db_path }}"
         mode: push
       delegate_to: gittest
-
-    - name: Check if Passwords index exists
-      command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
-      register: db_check_index
-      changed_when: false
-      failed_when: false
-
-    - name: Create Passwords index if it doesn't exist
-      when: "'Passwords_name_type' not in db_check_index.stdout"
-      command: >
-        sqlite3 /home/ubuntu/nvr/users.db "CREATE UNIQUE INDEX IF NOT EXISTS Passwords_name_type ON Passwords(name, type);"
         
 - name: Sync users from gittest to server1 and server2
   hosts: all
