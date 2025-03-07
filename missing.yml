@@ -107,6 +107,11 @@
       register: server_password
       changed_when: false
 
+    - name: debug updates
+      debug: 
+        var: gittest_password
+ 
+
     - name: Parse user lists into structured data
       set_fact:
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
