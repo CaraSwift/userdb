@@ -99,41 +99,34 @@
       changed_when: false
       when: inventory_hostname == 'gittest'
 
-    - name: Fetch password list from servers
+    - name: Fetch password list from servers (skip if gittest)
       command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
         FROM users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
+      when: inventory_hostname != 'gittest'
 
     - name: Ensure gittest_password is initialized on other servers
+      set_fact:
+        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+      when: inventory_hostname == 'gittest'
+
+    - name: Initialize empty list for gittest_password_list on non-gittest servers
       set_fact:
         gittest_password_list: []
       when: inventory_hostname != 'gittest'
 
-    - name: debug
-      debug:
-        var: gittest_password
-
-    - name: debug2
-      debug:
-        var: server_password      
-
     - name: Parse user lists into structured data
       set_fact:
-        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
         server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
 
     - name: Identify passwords needing updates
       set_fact:
-        passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list) 
+        passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
           | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first | default('')) 
           | list }}"
       loop: "{{ server_password_list }}"
       loop_control:
         loop_var: user
-
-    - name: debug3
-      debug:
-        var: passwords_to_update
