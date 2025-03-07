@@ -100,7 +100,7 @@
       changed_when: false
 
     - name: Fetch password list from servers
-      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.password
+      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
         FROM users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1;"
@@ -115,6 +115,10 @@
     - name: debug 
       debug: 
         var: server_password_list
+
+    - name: debug 
+      debug:
+        var: gittest_password_list
 
 
     - name: Compare passwords and update gittest if needed
