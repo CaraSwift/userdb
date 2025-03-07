@@ -100,10 +100,10 @@
       changed_when: false
 
     - name: Fetch password list from server1
-      command: SELECT u.name, p.password
+      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.password
         FROM users u
         JOIN Passwords p ON u.name = p.name
-        WHERE u.can_change_own_password = 1;
+        WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
 
