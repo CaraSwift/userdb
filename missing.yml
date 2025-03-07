@@ -94,7 +94,7 @@
   tasks:
 
     - name: Fetch password list from gittest
-      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+      command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
       delegate_to: gittest
       register: gittest_password
       changed_when: false
@@ -125,13 +125,6 @@
       debug: 
         var: passwords_to_update
 
-    - name: Compare passwords and update gittest if needed
-      debug:
-        msg: "Checking password for {{ item[0] }}: gittest={{ gittest_password.stdout_lines | selectattr('0', 'equalto', item.name) | map(attribute='1') | first }}, server1={{ server_password.stdout_lines | selectattr('0', 'equalto', item.name) | map(attribute='1') | first }}"
-      loop: "{{ gittest_password.stdout_lines | map('split', '|') }}"
-      loop_control:
-        loop_var: item
-      
 
 
 
@@ -177,68 +170,4 @@
       when: 
         - (gittest_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server1_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
         - (gittest_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server2_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
-
-
-
-    # - name: Parse password lists into structured data
-    #   set_fact:
-    #     gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-    #     server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
-
-    # - name: Identify missing or changed passwords on gittest
-    #   set_fact:
-    #     passwords_to_update: "{{ server_1_list | rejectattr(0, 'in', gittest_password_list | map(attribute=0) | list) | list }}"
-
-    # - name: Debug passwords that need to be synced
-    #   debug:
-    #     var: passwords_to_update
-
-    # - name: Make updates to users
-    #   command: >
-    #     sqlite3 "{{ db_path }}" "UPDATE Passwords
-    #       type = '{{ item[1] }}',
-    #       password = '{{ item[2] }}',
-    #     WHERE name = '{{ item[0] }}';"
-    #   loop: "{{ passwords_to_update }}" 
-    #   loop_control:
-    #     label: "{{ item[0] }}"
-    #   when: passwords_to_update | length > 0
-
-    # - name: Fetch user list from remote servers
-    #   command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
-    #   delegate_to: server2
-    #   register: server_2
-    #   changed_when: false 
-
-    # - name: Parse password lists into structured data
-    #   set_fact:
-    #     gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-    #     server_2_list: "{{ server_2.stdout_lines | map('split', '|') | list }}"
-
-    # - name: Identify missing or changed passwords on gittest
-    #   set_fact:
-    #     passwords2_to_update: >-
-    #       {{ server_2_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
-    #                       | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', item[0]) | map(attribute=2) | first | default(''))
-    #                       | list }}
-    #   loop: "{{ server_2_list }}"
-    #   loop_control:
-    #     loop_var: item
-
-    # - name: Debug passwords that need to be synced
-    #   debug:
-    #     var: passwords2_to_update
-
-    # - name: Make updates to users
-    #   command: >
-    #     sqlite3 "{{ db_path }}" "UPDATE Passwords
-    #       SET type = '{{ item[1] }}',
-    #           password = '{{ item[2] }}'
-    #       WHERE name = '{{ item[0] }}';"
-    #   loop: "{{ passwords2_to_update }}" 
-    #   loop_control:
-    #     label: "{{ item[0] }}"
-    #   when: passwords2_to_update | length > 0
-
-
 
