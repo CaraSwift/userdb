@@ -131,10 +131,15 @@
       register: server_1
       changed_when: false
 
-    - name: Fetch user list from remote servers
-      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
-      delegate_to: server2
-      register: server_2
-      changed_when: false 
+    - name: Parse user lists into structured data
+      set_fact:
+        gittest_users_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+        remote_users_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
+
+    # - name: Fetch user list from remote servers
+    #   command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+    #   delegate_to: server2
+    #   register: server_2
+    #   changed_when: false 
 
 
