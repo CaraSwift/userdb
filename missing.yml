@@ -104,7 +104,6 @@
         FROM users u
         JOIN Passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1;
-      delegate_to: other_servers
       register: server_password
       changed_when: false
 
