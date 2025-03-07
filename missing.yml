@@ -66,8 +66,7 @@
           hide_inaccessible_resources = '{{ item[6] }}',
           can_change_own_password = '{{ item[7] }}',
           is_ldap_user = '{{ item[8] }}',
-          currently_in_ldap = '{{ item[9] }}',
-          last_modified = '{{ item[10] }}'
+          currently_in_ldap = '{{ item[9] }}'
         WHERE name = '{{ item[0] }}';"
       loop: "{{ users_to_update }}" 
       loop_control:
