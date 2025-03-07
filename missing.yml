@@ -64,7 +64,6 @@
           language = '{{ item[4] }}',
           remote_access = '{{ item[5] }}',
           hide_inaccessible_resources = '{{ item[6] }}',
-          can_change_own_password = '{{ item[7] }}',
           is_ldap_user = '{{ item[8] }}',
           currently_in_ldap = '{{ item[9] }}'
         WHERE name = '{{ item[0] }}';"
