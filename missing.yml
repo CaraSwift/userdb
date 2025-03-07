@@ -179,12 +179,13 @@
     - name: Make updates to users
       command: >
         sqlite3 "{{ db_path }}" "UPDATE Passwords
-          SET \"type\" = '{{ item[1] }}',
+          SET type = '{{ item[1] }}',
               password = '{{ item[2] }}'
           WHERE name = '{{ item[0] }}';"
       loop: "{{ passwords2_to_update }}" 
       loop_control:
         label: "{{ item[0] }}"
       when: passwords2_to_update | length > 0
+
 
 
