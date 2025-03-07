@@ -94,10 +94,7 @@
   tasks:
 
     - name: Fetch password list from gittest
-      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
-        FROM users u
-        JOIN Passwords p ON u.name = p.name
-        WHERE u.can_change_own_password = 1;"
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;
       register: gittest_password
       changed_when: false
       when: inventory_hostname == 'gittest'
@@ -110,11 +107,6 @@
       register: server_password
       changed_when: false
       when: inventory_hostname in groups['other_servers']
-
-    - name: debug updates
-      debug: 
-        var: gittest_password
- 
 
     - name: Parse user lists into structured data
       set_fact:
