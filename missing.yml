@@ -122,9 +122,14 @@
       changed_when: false
 
     - name: Fetch password list from server1
-      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
+      command: SELECT u.name, p.password
+        FROM users u
+        JOIN Passwords p ON u.name = p.name
+        WHERE u.can_change_own_password = 1;
+      delegate_to: server2 
       register: server_2
       changed_when: false
+
 
     # - name: Parse password lists into structured data
     #   set_fact:
