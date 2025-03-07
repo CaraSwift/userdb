@@ -121,7 +121,7 @@
       register: gittest_password
       changed_when: false
 
-    - name: Fetch password list from remote servers
+    - name: Fetch password list from server1
       command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       delegate_to: server1
       register: server_1
@@ -132,12 +132,14 @@
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
         server_1_list: "{{ server_1.stdout_lines | map('split', '|') | list }}"
 
-    - name: Identify users needing updates
+    - name: Identify missing or changed passwords on gittest
       set_fact:
-        passwords_to_update: "{{ gittest_password_list | selectattr(0, 'in', server_1_list | map(attribute=0) | list) | selectattr(2, '>', (server_1_list | selectattr(0, 'equalto', password[0]) | map(attribute=3) | first | default(''))) | list }}"
-      loop: "{{ gittest_password_list }}"
-      loop_control:
-        loop_var: password
+        passwords_to_update: "{{ server_1_list | rejectattr(0, 'in', gittest_password_list | map(attribute=0) | list) | list }}"
+
+    - name: Debug passwords that need to be synced
+      debug:
+        var: passwords_to_update
+
 
     - name: Make updates to users
       command: >
