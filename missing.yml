@@ -109,7 +109,7 @@
         WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
-      when: inventory_group == 'other_servers'
+      when: inventory_hostname in groups['other_servers']
 
     - name: debug updates
       debug: 
