@@ -107,6 +107,11 @@
       register: server_password
       changed_when: false
 
+    - name: Ensure gittest_password is initialized on other servers
+      set_fact:
+        gittest_password_list: []
+      when: inventory_hostname != 'gittest'
+
     - name: debug
       debug:
         var: gittest_password
