@@ -123,8 +123,6 @@
       loop: "{{ gittest_password.stdout_lines | map('split', '|') }}"
       loop_control:
         loop_var: item
-      when: 
-        - (gittest_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
       
 
     - name: Update password on gittest
