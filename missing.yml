@@ -160,7 +160,7 @@
     - name: Parse password lists into structured data
       set_fact:
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-        server_2_list: "{{ server_2.stdout_lines.stdout_lines | map('split', '|') | list }}"
+        server_2_list: "{{ server_2.stdout_lines | map('split', '|') | list }}"
 
     - name: Identify missing or changed passwords on gittest
       set_fact:
