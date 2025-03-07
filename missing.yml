@@ -109,8 +109,8 @@
 
     - name: Parse user lists into structured data
       set_fact:
-        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | map('community.general.dict', 'name', 0, 'password', 1) | list }}"
-        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | map('community.general.dict', 'name', 0, 'password', 1) | list }}"
+        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
 
     - name: debug 
       debug: 
