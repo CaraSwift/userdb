@@ -117,6 +117,27 @@
         var: server_password 
 
 
+    - name: Compare passwords and update gittest if needed
+      debug:
+        msg: "Checking password for {{ item.name }}: gittest={{ gittest_passwords.stdout_lines | selectattr('0', 'equalto', item.name) | map(attribute='1') | first }}, server1={{ server_password.stdout_lines | selectattr('0', 'equalto', item.name) | map(attribute='1') | first }}"
+      loop: "{{ gittest_passwords.stdout_lines | map('split', '|') }}"
+      loop_control:
+        loop_var: item
+      when: 
+        - (gittest_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
+      
+
+    - name: Update password on gittest
+      command: >
+        sqlite3 /home/ubuntu/nvr/users.db "UPDATE Passwords SET password = '{{ item[1] }}' WHERE name = '{{ item[0] }}';"
+      loop: "{{ gittest_passwords.stdout_lines | map('split', '|') }}"
+      loop_control:
+        loop_var: item
+      when: 
+        - (gittest_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server1_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
+        - (gittest_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server2_passwords.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
+
+
 
     # - name: Parse password lists into structured data
     #   set_fact:
