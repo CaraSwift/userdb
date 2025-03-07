@@ -92,7 +92,6 @@
     db_path: "/home/ubuntu/nvr/users.db"
     
   tasks:
-
     - name: Fetch password list from gittest
       command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
       register: gittest_password
