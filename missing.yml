@@ -105,7 +105,6 @@
         WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
-      when: inventory_hostname != 'gittest'
 
     - name: Ensure gittest_password is initialized on other servers
       set_fact:
