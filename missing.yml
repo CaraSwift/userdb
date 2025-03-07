@@ -17,32 +17,13 @@
       changed_when: false
       failed_when: false
 
-    - name: Create Users table if it doesn't exist
+    - name: Copy data if doesn't exist
       when: "'users' not in db_checksqlite3.stdout"
-      command: >
-        sqlite3 "{{ db_path }}" "CREATE TABLE IF NOT EXISTS Users (
-          name TEXT UNIQUE PRIMARY KEY,
-          is_enabled BOOL,
-          access_level INT,
-          unit_group INT,
-          language INT,
-          remote_access INT,
-          hide_inaccessible_resources INT,
-          can_change_own_password INT,
-          is_ldap_user INT,
-          currently_in_ldap INT
-        );"
-      changed_when: false  
-
-    - name: Create Passwords table if it doesn't exist
-      when: "'passwords' not in db_checksqlite3.stdout"
-      command: >
-        sqlite3 "{{ db_path }}" "CREATE TABLE IF NOT EXISTS Passwords (
-          name TEXT,
-          type TEXT, -- ha1/des
-          password TEXT
-        );"
-      changed_when: false  
+      synchronize:
+        src: "{{ db_path }}"
+        dest: "{{ db_path }}"
+        mode: push
+      delegate_to: gittest
 
     - name: Check if Passwords index exists
       command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
