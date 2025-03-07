@@ -106,6 +106,14 @@
       register: server_password
       changed_when: false
 
+    - name: debug
+      debug:
+        var: gittest_password
+
+    - name: debug2
+      debug:
+        var: server_password      
+
     - name: Parse user lists into structured data
       set_fact:
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
@@ -119,10 +127,6 @@
       loop: "{{ server_password_list }}"
       loop_control:
         loop_var: user
-  
-    - name: debug updates
-      debug: 
-        var: passwords_to_update
 
     - name: Update password on gittest
       command: >
@@ -131,4 +135,4 @@
       loop_control:
         loop_var: item
       when: 
-        - (gittest_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first | default('')) != (server_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first | default(''))
+        - (gittest_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first) != (server_password.stdout_lines | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first)
