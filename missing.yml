@@ -57,20 +57,22 @@
 
     - name: Make updates to users
       command: >
-        sqlite3 /home/ubuntu/nvr/users.db "UPDATE users SET
-          is_enabled = '1',
-          access_level = '0',
-          unit_group = '0',
-          language = '0',
-          remote_access = '1',
-          hide_inaccessible_resources = '0',
-          can_change_own_password = '1',
-          is_ldap_user = '0',
-          currently_in_ldap = '0'
+        sqlite3 "{{ db_path }}" "UPDATE users
+        SET is_enabled = '{{ item[1] }}',
+          access_level = '{{ item[2] }}',
+          unit_group = '{{ item[3] }}',
+          language = '{{ item[4] }}',
+          remote_access = '{{ item[5] }}',
+          hide_inaccessible_resources = '{{ item[6] }}',
+          can_change_own_password = '{{ item[7] }}',
+          is_ldap_user = '{{ item[8] }}',
+          currently_in_ldap = '{{ item[9] }}',
+          last_modified = '{{ item[10] }}'
         WHERE name = '{{ item[0] }}';"
-      loop: "{{ users_to_update }}"
+      loop: "{{ users_to_update }}" 
       loop_control:
-        loop_var: item
+        label: "{{ item[0] }}"
+      when: users_to_update | length > 0
  
     - name: Identify missing users
       set_fact:
