@@ -2,6 +2,8 @@
 - name: Sync Cathexis User Database
   hosts: other_servers
   become: false 
+  vars:
+    db_path: "/home/ubuntu/nvr/users.db"
   tasks:
 
     - name: Ensure sqlite3 is installed
@@ -10,7 +12,7 @@
         state: present
 
     - name: Check if Users and Password tables exist
-      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
+      command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
       register: db_checksqlite3
       changed_when: false
       failed_when: false
@@ -18,7 +20,7 @@
     - name: Create Users table if it doesn't exist
       when: "'users' not in db_checksqlite3.stdout"
       command: >
-        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Users (
+        sqlite3 "{{ db_path }}" "CREATE TABLE IF NOT EXISTS Users (
           name TEXT UNIQUE PRIMARY KEY,
           is_enabled BOOL,
           access_level INT,
@@ -34,14 +36,14 @@
     - name: Create Passwords table if it doesn't exist
       when: "'passwords' not in db_checksqlite3.stdout"
       command: >
-        sqlite3 /home/ubuntu/nvr/users.db "CREATE TABLE IF NOT EXISTS Passwords (
+        sqlite3 "{{ db_path }}" "CREATE TABLE IF NOT EXISTS Passwords (
           name TEXT,
           type TEXT, -- ha1/des
           password TEXT
         );"
 
     - name: Check if Passwords index exists
-      command: sqlite3 /home/ubuntu/nvr/users.db "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
+      command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='index' AND name='Passwords_name_type';"
       register: db_check_index
       changed_when: false
       failed_when: false
