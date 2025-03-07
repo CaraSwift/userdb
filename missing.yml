@@ -94,7 +94,7 @@
   tasks:
 
     - name: Fetch password list from gittest
-      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;
+      command: sqlite3 "{{ db_path }}" "SELECT * FROM Passwords;"
       register: gittest_password
       changed_when: false
       when: inventory_hostname == 'gittest'
