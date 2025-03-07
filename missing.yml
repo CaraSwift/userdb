@@ -164,7 +164,13 @@
 
     - name: Identify missing or changed passwords on gittest
       set_fact:
-        passwords2_to_update: "{{ server_2_list | rejectattr(0, 'in', gittest_password_list | map(attribute=0) | list) | list }}"
+        passwords2_to_update: >-
+          {{ server_2_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
+                          | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', item[0]) | map(attribute=2) | first | default(''))
+                          | list }}
+      loop: "{{ server_2_list }}"
+      loop_control:
+        loop_var: item
 
     - name: Debug passwords that need to be synced
       debug:
