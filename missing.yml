@@ -110,7 +110,7 @@
         mode: '0755'
 
     - name: Run password sync script on each server
-      command: python3 /home/ubuntu/sync.py
+      command: python3 /home/ubuntu/userdb/sync.py
       delegate_to: gittest
 
 
