@@ -85,75 +85,98 @@
       loop_control:
         loop_var: item
 
-- name: Sync passwords
-  hosts: all
+
+
+- name: Sync passwords from remote servers to gittest
+  hosts: server1, server2
   become: yes
   vars:
     db_path: "/home/ubuntu/nvr/users.db"
-    
+    gittest_db_path: "/home/ubuntu/nvr/users.db"
+    is_gittest: "false"
+
   tasks:
-    - name: Fetch password list from gittest
-      command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
-      register: gittest_password
-      changed_when: false
-      when: inventory_hostname == 'gittest'
+    - name: Copy script to remote servers
+      copy:
+        src: sync_passwords.py
+        dest: /home/ubuntu/sync.py
+        mode: "0755"
 
-    - name: Debug passwords_to_update
-      debug:
-        var: gittest_password
-
-    - name: Fetch password list from servers 
-      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
-        FROM users u
-        JOIN Passwords p ON u.name = p.name
-        WHERE u.can_change_own_password = 1;"
-      register: server_password
-      changed_when: false
+    - name: Run password sync script on each server
+      command: python3 /home/ubuntu/sync.py {{ gittest_db_path }} {{ db_path }} {{ is_gittest }}
+      delegate_to: gittest
 
 
-    - name: Debug passwords_to_update
-      debug:
-        var: server_password
 
-    - name: Ensure gittest_password is initialized on other servers
-      set_fact:
-        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-      when: inventory_hostname == 'gittest'
+# - name: Sync passwords
+#   hosts: all
+#   become: yes
+#   vars:
+#     db_path: "/home/ubuntu/nvr/users.db"
+    
+#   tasks:
+#     - name: Fetch password list from gittest
+#       command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
+#       register: gittest_password
+#       changed_when: false
+#       when: inventory_hostname == 'gittest'
 
-    - name: Debug data
-      debug:
-        var: gittest_password_list
+#     - name: Debug passwords_to_update
+#       debug:
+#         var: gittest_password
 
-    - name: Initialize empty list for gittest_password_list on non-gittest servers
-      set_fact:
-        gittest_password_list: []
-      when: inventory_hostname != 'gittest'
+#     - name: Fetch password list from servers 
+#       command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
+#         FROM users u
+#         JOIN Passwords p ON u.name = p.name
+#         WHERE u.can_change_own_password = 1;"
+#       register: server_password
+#       changed_when: false
 
-    - name: Parse user lists into structured data
-      set_fact:
-        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
 
-    - name: Debug data
-      debug:
-        var: server_password_list
+#     - name: Debug passwords_to_update
+#       debug:
+#         var: server_password
 
-    - name: Identify passwords needing updates
-      set_fact:
-        passwords_to_update: "{{ server_password_list | selectattr('0', 'in', gittest_password_list | map(attribute=0) | list)
-          | rejectattr('2', 'equalto', gittest_password_dict[item.0] | default(None)) | list }}"
-      vars:
-        gittest_password_dict: "{{ dict(gittest_password_list | map(attribute=0) | zip(gittest_password_list | map(attribute=2))) }}"
+#     - name: Ensure gittest_password is initialized on other servers
+#       set_fact:
+#         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+#       when: inventory_hostname == 'gittest'
 
-    - name: Debug passwords_to_update
-      debug:
-        var: passwords_to_update
+#     - name: Debug data
+#       debug:
+#         var: gittest_password_list
 
-    - name: Update passwords on remote servers
-      command: >
-        sqlite3 "{{ db_path }}" "UPDATE Passwords
-        SET password = '{{ item[2] }}'
-        WHERE name = '{{ item[0] }}' AND type = '{{ item[1] }}';"
-      loop: "{{ passwords_to_update }}"
-      loop_control:
-        label: "{{ item[0] }}"
-      when: passwords_to_update | length > 0
+#     - name: Initialize empty list for gittest_password_list on non-gittest servers
+#       set_fact:
+#         gittest_password_list: []
+#       when: inventory_hostname != 'gittest'
+
+#     - name: Parse user lists into structured data
+#       set_fact:
+#         server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
+
+#     - name: Debug data
+#       debug:
+#         var: server_password_list
+
+#     - name: Identify passwords needing updates
+#       set_fact:
+#         passwords_to_update: "{{ server_password_list | selectattr('0', 'in', gittest_password_list | map(attribute=0) | list)
+#           | rejectattr('2', 'equalto', gittest_password_dict[item.0] | default(None)) | list }}"
+#       vars:
+#         gittest_password_dict: "{{ dict(gittest_password_list | map(attribute=0) | zip(gittest_password_list | map(attribute=2))) }}"
+
+#     - name: Debug passwords_to_update
+#       debug:
+#         var: passwords_to_update
+
+#     - name: Update passwords on remote servers
+#       command: >
+#         sqlite3 "{{ db_path }}" "UPDATE Passwords
+#         SET password = '{{ item[2] }}'
+#         WHERE name = '{{ item[0] }}' AND type = '{{ item[1] }}';"
+#       loop: "{{ passwords_to_update }}"
+#       loop_control:
+#         label: "{{ item[0] }}"
+#       when: passwords_to_update | length > 0
