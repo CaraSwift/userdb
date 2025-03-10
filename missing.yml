@@ -94,11 +94,12 @@
     is_gittest: "false"
 
   tasks: 
-    # - name: Copy script to remote servers
-    #   copy:
-    #     src: sync.py
-    #     dest: /home/ubuntu/sync.py
-    #     mode: "0755"
+    - name: Copy script to remote servers
+      synchronize:
+        src: sync.py
+        dest: /home/ubuntu/sync.py
+        mode: push
+        delegate_to: gittest
 
     - name: Ensure sync.py has proper ownership
       file:
