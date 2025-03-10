@@ -46,4 +46,3 @@
      - name: script output  
        debug:
         var: script_output
-
