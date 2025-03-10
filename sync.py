@@ -26,6 +26,7 @@ def get_passwords(db_path):
     cursor = conn.cursor()
     cursor.execute("SELECT name, type, password FROM Passwords;")
     passwords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
+    print(passwords)
     conn.close()
     return passwords
 
