@@ -64,17 +64,20 @@
   vars:
     sh_path: "/home/ubuntu/userdb/password.py"
     local_db: "/home/ubuntu/nvr/users.db"
-    master_db: "/home/ubuntu/nvr/users_sev1.db"
+    sev_1: "/home/ubuntu/nvr/users_sev1.db"
+    sev_2: "/home/ubuntu/nvr/users_sev2.db"
   tasks:
 
-    - name: Rsync users.db from gittest
+    - name: Rsync passwords from sev1
       command: rsync -avz ubuntu@172.31.23.120:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev1.db
 
     - name: Execute script to compare local vs master database
-      command: python3 {{ sh_path }} "{{ master_db }}"
+      command: python3 {{ sh_path }} "{{ local_db }}" "{{ sev_1 }}"
       register: password_output
     
     - name: password output  
       debug:
         var: password_output
 
+    # - name: Rsync passwords from sev2
+    #   command: rsync -avz ubuntu@172.31.31.144:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev2.db
