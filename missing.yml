@@ -38,10 +38,18 @@
       register: gittest_users
       changed_when: false
 
+    - name: debug updates
+      debug:
+        var: gittest_users
+
     - name: Fetch user list from remote servers
       command: sqlite3 "{{ db_path }}" "SELECT * FROM users;"
       register: remote_users
       changed_when: false
+
+    - name: debug updates
+      debug:
+        var: remote_users 
 
     - name: Parse user lists into structured data
       set_fact:
@@ -89,72 +97,72 @@
       loop_control:
         loop_var: item
 
-- name: Sync passwords from remote servers to gittest
-  hosts: all
-  become: yes
-  vars:
-    db_path: "/home/ubuntu/nvr/users.db"
+# - name: Sync passwords from remote servers to gittest
+#   hosts: all
+#   become: yes
+#   vars:
+#     db_path: "/home/ubuntu/nvr/users.db"
     
-  tasks:
-    - name: Fetch password list from gittest
-      command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
-      register: gittest_password
-      changed_when: false
-      when: inventory_hostname == 'gittest'
+#   tasks:
+#     - name: Fetch password list from gittest
+#       command: sqlite3 "{{ db_path }}" "SELECT name, type, password FROM Passwords;"
+#       register: gittest_password
+#       changed_when: false
+#       when: inventory_hostname == 'gittest'
 
-    - name: Debug gittest_password
-      debug:
-        var: gittest_password
+#     - name: Debug gittest_password
+#       debug:
+#         var: gittest_password
 
-    - name: Fetch password list from servers 
-      command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
-        FROM users u
-        JOIN Passwords p ON u.name = p.name
-        WHERE u.can_change_own_password = 1;"
-      register: server_password
-      changed_when: false
+#     - name: Fetch password list from servers 
+#       command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
+#         FROM users u
+#         JOIN Passwords p ON u.name = p.name
+#         WHERE u.can_change_own_password = 1;"
+#       register: server_password
+#       changed_when: false
 
-    - name: Debug server_password
-      debug:
-        var: server_password
+#     - name: Debug server_password
+#       debug:
+#         var: server_password
 
-    - name: Parse gittest data
-      set_fact:
-        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-      when: inventory_hostname == 'gittest'
+#     - name: Parse gittest data
+#       set_fact:
+#         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+#       when: inventory_hostname == 'gittest'
 
-    - name: Debug data
-      debug:
-        var: gittest_password_list
+#     - name: Debug data
+#       debug:
+#         var: gittest_password_list
 
-    - name: Initialize empty list for gittest_password_list on non-gittest servers
-      set_fact:
-        gittest_password_list: []
-      when: inventory_hostname != 'gittest'
+#     - name: Initialize empty list for gittest_password_list on non-gittest servers
+#       set_fact:
+#         gittest_password_list: []
+#       when: inventory_hostname != 'gittest'
 
-    - name: Parse user lists into structured data
-      set_fact:
-        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
+#     - name: Parse user lists into structured data
+#       set_fact:
+#         server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
 
-    - name: Debug data
-      debug:
-        var: server_password_list
+#     - name: Debug data
+#       debug:
+#         var: server_password_list
 
-    - name: Identify passwords needing updates
-      set_fact:
-        passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
-          | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first | default('')) 
-          | list }}"
-      loop: "{{ server_password_list }}"
-      loop_control:
-        loop_var: user
-    - name: Debug password comparison for each user
-      debug:
-        msg: "Comparing password for user {{ user[0] }}: server password: {{ user[2] }} vs gittest password: {{ gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first }}"
+#     - name: Identify passwords needing updates
+#       set_fact:
+#         passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
+#           | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first | default('')) 
+#           | list }}"
+#       loop: "{{ server_password_list }}"
+#       loop_control:
+#         loop_var: user
+#     - name: Debug password comparison for each user
+#       debug:
+#         msg: "Comparing password for user {{ user[0] }}: server password: {{ user[2] }} vs gittest password: {{ gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first }}"
 
-    - name: Debug passwords_to_update
-      debug:
-        var: passwords_to_update
+#     - name: Debug passwords_to_update
+#       debug:
+#         var: passwords_to_update
 
     # - name: Update passwords on remote servers
     #   command: >
