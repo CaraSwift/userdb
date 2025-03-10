@@ -31,10 +31,10 @@
   vars:
     db_path: "/home/ubuntu/nvr"
   tasks:
-  
+
     - name: Copy Script 
       ansible.builtin.copy:
         src: sync.py
-        dest: "{{ db_path }}"
+        dest: /home/ubuntu/nvr/sync.py
         mode: '0777'
       delegate_to: gittest 
