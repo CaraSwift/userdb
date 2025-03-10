@@ -114,27 +114,27 @@
       debug:
         var: server_password
 
-    # - name: Ensure gittest_password is initialized on other servers
-    #   set_fact:
-    #     gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
-    #   when: inventory_hostname == 'gittest'
+    - name: Parse gittest data
+      set_fact:
+        gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
+      when: inventory_hostname == 'gittest'
 
-    # - name: Debug data
-    #   debug:
-    #     var: gittest_password_list
+    - name: Debug data
+      debug:
+        var: gittest_password_list
 
-    # - name: Initialize empty list for gittest_password_list on non-gittest servers
-    #   set_fact:
-    #     gittest_password_list: []
-    #   when: inventory_hostname != 'gittest'
+    - name: Initialize empty list for gittest_password_list on non-gittest servers
+      set_fact:
+        gittest_password_list: []
+      when: inventory_hostname != 'gittest'
 
-    # - name: Parse user lists into structured data
-    #   set_fact:
-    #     server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
+    - name: Parse user lists into structured data
+      set_fact:
+        server_password_list: "{{ server_password.stdout_lines | map('split', '|') | list }}"
 
-    # - name: Debug data
-    #   debug:
-    #     var: server_password_list
+    - name: Debug data
+      debug:
+        var: server_password_list
 
     # - name: Identify passwords needing updates
     #   set_fact:
