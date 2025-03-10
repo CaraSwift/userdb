@@ -30,7 +30,7 @@
   become: no
   tasks:
     - name: Rsync users.db from gittest
-      command: rsync -avz ubuntu@gittest:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
+      command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
 
 
 - name: Sync users from gittest to server1 and server2
