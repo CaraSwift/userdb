@@ -60,7 +60,7 @@
 
 - name: Password sync serv 1
   hosts: main
-  become: no
+  become: yes
   vars:
     sh_path: "/home/ubuntu/userdb/passwords.py"
     local_db: "/home/ubuntu/nvr/users.db"
