@@ -27,7 +27,7 @@
 
 - name: Copy master database from gittest
   hosts: other_servers
-  become: yes
+  become: no
   tasks:
     - name: Fetch users.db from gittest
       synchronize:
