@@ -85,8 +85,6 @@
       loop_control:
         loop_var: item
 
-
-
 - name: Sync passwords from remote servers to gittest
   hosts: server1, server2
   become: yes
@@ -96,11 +94,11 @@
     is_gittest: "false"
 
   tasks: 
-  #   - name: Copy script to remote servers
-  #     copy:
-  #       src: sync.py
-  #       dest: /home/ubuntu/sync.py
-  #       mode: "0755"
+    - name: Copy script to remote servers
+      copy:
+        src: /home/ubuntu/userdb/sync.py
+        dest: /home/ubuntu/sync.py
+        mode: "0755"
 
     - name: Ensure sync.py has proper ownership
       file:
