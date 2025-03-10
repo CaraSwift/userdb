@@ -36,7 +36,7 @@
         mode: pull
 
 - name: Sync users from gittest to server1 and server2
-  hosts: all
+  hosts: other_servers
   become: yes
   vars:
     sh_path: "/home/ubuntu/nvr/sync.py"
