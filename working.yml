@@ -71,9 +71,10 @@
       command: rsync -avz ubuntu@172.31.23.120:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev1.db
 
     - name: Execute script to compare local vs master database
-      command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}"
+      command: python3 {{ sh_path }} "{{ master_db }}"
       register: password_output
     
     - name: password output  
       debug:
         var: password_output
+
