@@ -32,9 +32,8 @@
     db_path: "/home/ubuntu/nvr"
   tasks:
 
-    - name: Copy Script 
-      ansible.builtin.copy:
-        src: sync.py
-        dest: /home/ubuntu/nvr/sync.py
-        mode: '0777'
-      delegate_to: gittest 
+     - name: Copy script to remote machine
+       copy:
+         src: /home/ubuntu/userdb/sync.py
+         dest: /home/ubuntu/nvr/sync.py
+         mode: '0777'
