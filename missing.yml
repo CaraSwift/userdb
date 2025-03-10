@@ -86,7 +86,7 @@
         loop_var: item
 
 - name: Sync passwords from remote servers to gittest
-  hosts: server1, server2
+  hosts: all
   become: yes
   vars:
     db_path: "/home/ubuntu/nvr/users.db"
