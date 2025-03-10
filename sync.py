@@ -59,7 +59,7 @@ def main(gittest_db, local_db):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python sync_passwords.py <gittest_db_path> <local_db_path>")
+        print("Usage: python sync.py <gittest_db_path> <local_db_path>")
         sys.exit(1)
     
     main(sys.argv[1], sys.argv[2])
