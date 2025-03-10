@@ -39,7 +39,7 @@ def sync_database(gittest_db, remote_db):
     local_users = get_users_and_passwords(remote_db)
     remote_users = get_users_and_passwords(gittest_db)
 
-    added, removed, modified = compare_users(local_users, remote_users)
+    modified = compare_users(local_users, remote_users)
 
     # Print out the differences
     print(f"Local DB = {remote_db}, Gittest DB = {gittest_db}")
