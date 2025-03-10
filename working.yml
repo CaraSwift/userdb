@@ -29,7 +29,7 @@
   hosts: all
   become: yes
   vars:
-    db_path: "/home/ubuntu/nvr"
+    sh_path: "/home/ubuntu/nvr/sync.py"
   tasks:
 
      - name: Copy script to remote machine
@@ -37,3 +37,6 @@
          src: /home/ubuntu/userdb/sync.py
          dest: /home/ubuntu/nvr/sync.py
          mode: '0777'
+
+     - name: Execute script
+       command: python3  {{ sh_path }}
