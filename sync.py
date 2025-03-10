@@ -41,25 +41,25 @@ def update_passwords(db_path, updates):
     conn.commit()
     conn.close()
 
-def main(gittest_db, local_db):
-    gittest_passwords = get_passwords(gittest_db)
-    local_passwords = get_passwords(local_db)
+# def main(gittest_db, local_db):
+#     gittest_passwords = get_passwords(gittest_db)
+#     local_passwords = get_passwords(local_db)
 
-    updates_needed = {
-        user: gittest_passwords[user]
-        for user in gittest_passwords
-        if user in local_passwords and gittest_passwords[user][1] != local_passwords[user][1]
-    }
+#     updates_needed = {
+#         user: gittest_passwords[user]
+#         for user in gittest_passwords
+#         if user in local_passwords and gittest_passwords[user][1] != local_passwords[user][1]
+#     }
 
-    if updates_needed:
-        update_passwords(local_db, updates_needed)
-        print(f"Updated {len(updates_needed)} passwords.")
-    else:
-        print("No password updates needed.")
+#     if updates_needed:
+#         update_passwords(local_db, updates_needed)
+#         print(f"Updated {len(updates_needed)} passwords.")
+#     else:
+#         print("No password updates needed.")
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python sync.py <gittest_db_path> <local_db_path>")
-        sys.exit(1)
+# if __name__ == "__main__":
+#     if len(sys.argv) != 3:
+#         print("Usage: python sync.py <gittest_db_path> <local_db_path>")
+#         sys.exit(1)
     
-    main(sys.argv[1], sys.argv[2])
+#     main(sys.argv[1], sys.argv[2])
