@@ -100,7 +100,7 @@
       copy:
         src: /home/ubuntu/userdb/sync.py
         dest: /home/ubuntu/sync.py
-        mode: "0755"
+        mode: "0775"
 
     - name: Run password sync script on each server
       command: python3 /home/ubuntu/sync.py {{ gittest_db_path }} {{ db_path }} {{ is_gittest }}
