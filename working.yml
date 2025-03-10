@@ -72,4 +72,8 @@
 
     - name: Execute script to compare local vs master database
       command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}"
-      register: script_output
+      register: password_output
+    
+    - name: password output  
+      debug:
+        var: password_output
