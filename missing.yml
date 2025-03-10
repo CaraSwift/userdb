@@ -98,6 +98,10 @@
       changed_when: false
       when: inventory_hostname == 'gittest'
 
+    - name: Debug passwords_to_update
+      debug:
+        var: gittest_password
+
     - name: Fetch password list from servers (skip if gittest)
       command: sqlite3 "{{ db_path }}" "SELECT u.name, p.type, p.password
         FROM users u
@@ -105,6 +109,11 @@
         WHERE u.can_change_own_password = 1;"
       register: server_password
       changed_when: false
+
+
+    - name: Debug passwords_to_update
+      debug:
+        var: server_password
 
     - name: Ensure gittest_password is initialized on other servers
       set_fact:
