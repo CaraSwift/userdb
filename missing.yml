@@ -140,9 +140,7 @@
     #   set_fact:
     #     passwords_to_update: "{{ server_password_list | selectattr('0', 'in', gittest_password_list | map(attribute=0) | list)
     #       | rejectattr('2', 'equalto', gittest_password_dict[item.0] | default(None)) | list }}"
-    #   vars:
-    #     gittest_password_dict: "{{ dict(gittest_password_list | map(attribute=0) | zip(gittest_password_list | map(attribute=2))) }}"
-
+    # 
     # - name: Debug passwords_to_update
     #   debug:
     #     var: passwords_to_update
