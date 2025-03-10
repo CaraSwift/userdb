@@ -56,7 +56,7 @@
         var: script_output
 
 - name: Copy server1 database
-  hosts: gittest
+  hosts: main
   become: no
   tasks:
     - name: Rsync users.db from gittest
