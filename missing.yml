@@ -38,23 +38,23 @@
       register: gittest_users
       changed_when: false
 
-    - name: debug updates
-      debug:
-        var: gittest_users
-
     - name: Fetch user list from remote servers
       command: sqlite3 "{{ db_path }}" "SELECT * FROM users;"
       register: remote_users
       changed_when: false
 
-    - name: debug updates
-      debug:
-        var: remote_users 
-
     - name: Parse user lists into structured data
       set_fact:
         gittest_users_list: "{{ gittest_users.stdout_lines | map('split', '|') | list }}"
         remote_users_list: "{{ remote_users.stdout_lines | map('split', '|') | list }}"
+
+    - name: debug updates
+      debug:
+        var: gittest_users_list
+
+    - name: debug updates
+      debug:
+        var: remote_users_list
 
     - name: Identify users needing updates
       set_fact:
