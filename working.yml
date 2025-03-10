@@ -34,7 +34,6 @@
         src: "/home/ubuntu/nvr/users.db"
         dest: "/home/ubuntu/nvr/users_master.db"
         mode: pull
-      delegate_to: gittest
 
 - name: Sync users from gittest to server1 and server2
   hosts: all
