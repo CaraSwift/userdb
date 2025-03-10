@@ -40,7 +40,7 @@
          mode: '0777'
 
      - name: Execute script
-       command: python3  {{ sh_path }} {{ db_path }}
+       command: python3  {{ sh_path }} {{ db_path }} /home/ubuntu/nvr/users.db
        register: script_output
 
      - name: script output  
