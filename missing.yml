@@ -48,12 +48,12 @@
         gittest_users_list: "{{ gittest_users.stdout_lines | map('split', '|') | list }}"
         remote_users_list: "{{ remote_users.stdout_lines | map('split', '|') | list }}"
 
-    - name: check users to update
+    - name: Identify users needing updates
       set_fact:
-        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) | selectattr(1, 'neq', remote_users_list | selectattr(0, 'equalto', item[0]) | map(attribute=1) | first | default('')) | list }}"
-      with_items: "{{ gittest_users_list }}"
+      users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) | selectattr(1, 'neq', remote_users_list | selectattr(0, 'equalto', user[0]) | map(attribute=1) | first | default('')) | list }}"
+      loop: "{{ gittest_users_list }}"
       loop_control:
-        loop_var: item
+        loop_var: user
 
     - name: debug updates
       debug:
