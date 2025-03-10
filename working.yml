@@ -32,7 +32,6 @@
     - name: Rsync users.db from gittest
       command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
 
-
 - name: Sync users from gittest to server1 and server2
   hosts: other_servers
   become: yes
@@ -56,3 +55,9 @@
       debug:
         var: script_output
 
+- name: Copy server1 database
+  hosts: gittest
+  become: no
+  tasks:
+    - name: Rsync users.db from gittest
+      command: rsync -avz ubuntu@172.31.23.120:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev1.db
