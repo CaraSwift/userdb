@@ -136,10 +136,11 @@
       debug:
         var: server_password_list
 
-    # - name: Identify passwords needing updates
-    #   set_fact:
-    #     passwords_to_update: "{{ server_password_list | selectattr('0', 'in', gittest_password_list | map(attribute=0) | list)
-    #       | rejectattr('2', 'equalto', gittest_password_dict[item.0] | default(None)) | list }}"
+    - name: Identify passwords needing updates
+      set_fact:
+        passwords_to_update: "{{ server_password_list | selectattr('0', 'in', gittest_password_list | map(attribute=0) | list)
+          | rejectattr('2', 'equalto', gittest_password_dict[item.0] | default(None)) | list }}"
+          
     # 
     # - name: Debug passwords_to_update
     #   debug:
