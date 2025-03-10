@@ -98,7 +98,7 @@
   tasks: 
     - name: Copy script to remote servers
       copy:
-        src: sync_passwords.py
+        src: sync.py
         dest: /home/ubuntu/sync.py
         mode: "0755"
 
