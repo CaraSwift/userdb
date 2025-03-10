@@ -50,10 +50,13 @@
 
     - name: Identify users needing updates
       set_fact:
-        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) | selectattr(1, 'equalto', remote_users_list | selectattr(0, 'equalto', user[0]) | map(attribute=1) | first | default('')) | list }}"
+        users_to_update: "{{ gittest_users_list | selectattr(0, 'in', remote_users_list | map(attribute=0) | list) 
+                            | selectattr(0, 'in', gittest_users_list | map(attribute=0) | list) 
+                            | selectattr('1', 'neq', remote_users_list | selectattr('0', 'equalto', item[0]) | map(attribute='1') | first | default('')) 
+                            | list }}"
       loop: "{{ gittest_users_list }}"
       loop_control:
-        loop_var: user
+        loop_var: item
 
     - name: Debug server_password
       debug:
