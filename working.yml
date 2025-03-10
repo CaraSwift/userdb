@@ -40,7 +40,7 @@
          mode: '0777'
 
      - name: Execute script
-       command: python3  {{ sh_path }} {{ hostvars[gittest] [db_path] }} {{ db_path }}
+       command: python3  {{ sh_path }} {{ hostvars['gittest'] [db_path] }} {{ db_path }}
        register: script_output
 
      - name: script output  
