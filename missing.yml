@@ -120,6 +120,10 @@
         gittest_password_list: "{{ gittest_password.stdout_lines | map('split', '|') | list }}"
       when: inventory_hostname == 'gittest'
 
+    - name: Debug data
+      debug:
+        var: gittest_password_list
+
     - name: Initialize empty list for gittest_password_list on non-gittest servers
       set_fact:
         gittest_password_list: []
