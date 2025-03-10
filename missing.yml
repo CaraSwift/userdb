@@ -141,7 +141,7 @@
         passwords_to_update: "{{ server_password_list | selectattr(0, 'in', gittest_password_list | map(attribute=0) | list)
           | rejectattr(2, 'equalto', gittest_password_list | selectattr(0, 'equalto', user[0]) | map(attribute=2) | first | default('')) 
           | list }}"
-      loop: "{{ server_password_list }}"
+      loop: "{{ gittest_password_list }}"
       loop_control:
         loop_var: user
     - name: Debug password comparison for each user
