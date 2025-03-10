@@ -30,6 +30,7 @@
   become: yes
   vars:
     sh_path: "/home/ubuntu/nvr/sync.py"
+    db_path: "/home/ubuntu/nvr/users.db"
   tasks:
 
      - name: Copy script to remote machine
@@ -39,7 +40,7 @@
          mode: '0777'
 
      - name: Execute script
-       command: python3  {{ sh_path }} {{ hostvars['gittest'] }} {{ db_path }}
+       command: python3  {{ sh_path }} {{ hostvars['gittest'] [db_path] }} {{ db_path }}
        register: script_output
 
      - name: script output  
