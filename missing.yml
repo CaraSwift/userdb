@@ -95,12 +95,19 @@
     gittest_db_path: "/home/ubuntu/nvr/users.db"
     is_gittest: "false"
 
-  tasks:
+  tasks: 
     - name: Copy script to remote servers
       copy:
-        src: /home/ubuntu/userdb/sync.py
+        src: sync_passwords.py
         dest: /home/ubuntu/sync.py
-        mode: "0775"
+        mode: "0755"
+
+    - name: Ensure sync.py has proper ownership
+      file:
+        path: /home/ubuntu/sync.py
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
 
     - name: Run password sync script on each server
       command: python3 /home/ubuntu/sync.py {{ gittest_db_path }} {{ db_path }} {{ is_gittest }}
@@ -108,7 +115,7 @@
 
 
 
-# - name: Sync passwords
+
 #   hosts: all
 #   become: yes
 #   vars:
