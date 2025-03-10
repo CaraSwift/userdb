@@ -41,11 +41,14 @@
     master_db: "/home/ubuntu/nvr/users_master.db"
   tasks:
 
-    - name: Copy script to remote machine
+    - name: Copy multiple scripts to remote machine
       copy:
-        src: /home/ubuntu/userdb/sync.py
-        dest: /home/ubuntu/nvr/sync.py
+        src: "{{ item }}"
+        dest: "/home/ubuntu/nvr/{{ item | basename }}"
         mode: '0777'
+      with_items:
+        - /home/ubuntu/userdb/sync.py
+        - /home/ubuntu/userdb/password.py
 
     - name: Execute script to compare local vs master database
       command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}"
@@ -55,9 +58,18 @@
       debug:
         var: script_output
 
-- name: Copy server1 database
+- name: Password sync serv 1
   hosts: main
   become: no
+  vars:
+    sh_path: "/home/ubuntu/nvr/passwords.py"
+    local_db: "/home/ubuntu/nvr/users.db"
+    master_db: "/home/ubuntu/nvr/users_sev1.db"
   tasks:
+
     - name: Rsync users.db from gittest
       command: rsync -avz ubuntu@172.31.23.120:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev1.db
+
+    - name: Execute script to compare local vs master database
+      command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}"
+      register: script_output
