@@ -21,18 +21,19 @@ def get_users_and_passwords(db_path):
 
 def compare_users(local_users, remote_users):
     """Compare two sets of user data and find differences."""
-    added_users = {user: data for user, data in remote_users.items() if user not in local_users}
     removed_users = {user: data for user, data in local_users.items() if user not in remote_users}
 
     modified_users = {}
     for user in remote_users:
-        if user in local_users and remote_users[user] != local_users[user]:
-            modified_users[user] = {
-                "old": local_users[user],
-                "new": remote_users[user]
-            }
+        if user in local_users:
+            if remote_users[user] != local_users[user]:
+                modified_users[user] = {
+                    "old": local_users[user],
+                    "new": remote_users[user]
+                }
 
-    return added_users, removed_users, modified_users
+    return removed_users, modified_users
+
 
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
