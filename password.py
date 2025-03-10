@@ -21,6 +21,7 @@ def get_users_and_passwords(db_path):
 
 def compare_users(local_users, remote_users):
     """Compare two sets of user data and find differences."""
+    added_users = {user: data for user, data in remote_users.items() if user not in local_users}
     removed_users = {user: data for user, data in local_users.items() if user not in remote_users}
 
     modified_users = {}
@@ -32,7 +33,7 @@ def compare_users(local_users, remote_users):
                     "new": remote_users[user]
                 }
 
-    return removed_users, modified_users
+    return added_users, removed_users, modified_users
 
 
 def sync_database(gittest_db, remote_db):
