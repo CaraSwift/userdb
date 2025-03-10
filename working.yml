@@ -62,7 +62,7 @@
   hosts: main
   become: no
   vars:
-    sh_path: "/home/ubuntu/userdb/passwords.py"
+    sh_path: "/home/ubuntu/userdb/password.py"
     local_db: "/home/ubuntu/nvr/users.db"
     master_db: "/home/ubuntu/nvr/users_sev1.db"
   tasks:
