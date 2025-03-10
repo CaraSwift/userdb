@@ -40,3 +40,9 @@
 
      - name: Execute script
        command: python3  {{ sh_path }}
+       register: script_output
+
+     - name: script output  
+       debug:
+        var: script_output
+
