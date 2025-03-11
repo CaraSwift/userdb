@@ -31,6 +31,22 @@ def compare_users(local_users, remote_users):
 
     return modified_users
 
+def update_main_db(gittest_db, modified_users):
+    """Apply pass word changes to the main database."""
+    conn = sqlite3.connect(gittest_db)
+    cursor = conn.cursor()
+
+    # Modify users
+    for user, changes in modified_users.items():
+        cursor.execute("""
+            UPDATE passwords SET 
+                type = ?, password = ?
+            WHERE name = ?;
+        """, (*changes["new"], user))
+
+    conn.commit()
+    conn.close()
+
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
     local_users = get_users_and_passwords(remote_db)
