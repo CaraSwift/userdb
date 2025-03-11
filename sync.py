@@ -111,5 +111,9 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
+    print("\n=== passwords ===")
+    for user, data in password.items():
+        print(f"{user}: {data}")    
+
     update_remote_db(remote_db, added, removed, modified, local_passwords)
     print("\nRemote database updated successfully!")
