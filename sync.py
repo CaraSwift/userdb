@@ -33,11 +33,12 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
     # Add new users
     for user, data in added_users.items():
         cursor.execute("""
-            INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
-                              hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
-                              currently_in_ldap)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        """, (user, *data))
+    INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
+                      hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
+                      currently_in_ldap)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+""", (user, *data))
+
 
     # Remove users
     for user in removed_users:
