@@ -9,7 +9,7 @@ def get_users_and_passwords(db_path):
     cursor.execute("""
         SELECT u.name, p.type, p.password
         FROM users u
-        JOIN Passwords p ON u.name = p.name
+        JOIN passwords p ON u.name = p.name
         WHERE u.can_change_own_password = 1;
     """)
 
@@ -18,21 +18,22 @@ def get_users_and_passwords(db_path):
     conn.close()
     return users
 
-def compare_users(local_users, remote_users):
-
+def compare_users(remote_users, gittest_users):
+    """Compare remote server users against gittest users and identify modifications."""
     modified_users = {}
-    for user in local_users:
-        if user in remote_users:
-            if local_users[user] != remote_users[user]:
+
+    for user in remote_users:
+        if user in gittest_users:
+            if remote_users[user] != gittest_users[user]:
                 modified_users[user] = {
-                    "old": remote_users[user], 
-                    "new": local_users[user]    
+                    "old": gittest_users[user],   # Old data (current on gittest)
+                    "new": remote_users[user]     # New data (from remote)
                 }
 
     return modified_users
 
 def update_main_db(gittest_db, modified_users):
-    """Apply pass word changes to the main database."""
+    """Apply password changes to the gittest database."""
     conn = sqlite3.connect(gittest_db)
     cursor = conn.cursor()
 
@@ -42,27 +43,31 @@ def update_main_db(gittest_db, modified_users):
             UPDATE passwords SET 
                 type = ?, password = ?
             WHERE name = ?;
-        """, (*changes["new"], user))
+        """, (changes["new"]["type"], changes["new"]["password"], user))
 
     conn.commit()
     conn.close()
 
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
-    local_users = get_users_and_passwords(remote_db)
-    remote_users = get_users_and_passwords(gittest_db)
+    remote_users = get_users_and_passwords(remote_db)  # Remote users (should be applied)
+    gittest_users = get_users_and_passwords(gittest_db)  # Gittest users (to be updated)
 
-    modified = compare_users(local_users, remote_users)
+    modified = compare_users(remote_users, gittest_users)
 
     # Print out the differences
-    print(f"Local DB = {remote_db}, Gittest DB = {gittest_db}")
+    print(f"Remote DB = {remote_db}, Gittest DB = {gittest_db}")
 
     print("\n=== Modified Users ===")
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    # Here you can add logic to implement the changes in the gittest database if needed
-    # For example: adding missing users or updating passwords, etc.
+    # Apply updates
+    if modified:
+        update_main_db(gittest_db, modified)
+        print("Updated passwords in gittest database.")
+    else:
+        print("No updates needed.")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -73,3 +78,4 @@ if __name__ == "__main__":
     remote_db = sys.argv[2]
 
     sync_database(gittest_db, remote_db)
+
