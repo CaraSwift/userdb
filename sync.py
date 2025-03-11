@@ -88,8 +88,8 @@ if __name__ == "__main__":
         print("Usage: python3 sync.py <local_db> <remote_db>")
         sys.exit(1)
 
-    local_db = sys.argv[1]
-    remote_db = sys.argv[2]
+    local_db = sys.argv[1]  
+    remote_db = sys.argv[2]  
 
     print(f"Comparing: Local DB = {local_db}, Remote DB = {remote_db}")
 
@@ -114,5 +114,5 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    update_remote_db(remote_db, added, removed, modified, local_passwords)
+    update_remote_db(local_db, added, removed, modified, local_passwords)  
     print("\nRemote database updated successfully!")
