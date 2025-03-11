@@ -79,13 +79,13 @@
       debug:
         var: password_output 
 
-    - name: Rsync passwords from sev2
-      command: rsync -avz ubuntu@172.31.31.144:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev2.db
+    # - name: Rsync passwords from sev2
+    #   command: rsync -avz ubuntu@172.31.31.144:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev2.db
 
-    - name: Execute script to compare local vs master database
-      command: python3 {{ sh_path }} "{{ local_db }}" "{{ sev_2 }}"
-      register: password_output2
+    # - name: Execute script to compare local vs master database
+    #   command: python3 {{ sh_path }} "{{ local_db }}" "{{ sev_2 }}"
+    #   register: password_output2
 
-    - name: password output  
-      debug:
-        var: password_output2 
+    # - name: password output  
+    #   debug:
+    #     var: password_output2 
