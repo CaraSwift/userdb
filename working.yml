@@ -25,22 +25,13 @@
         mode: push
       delegate_to: gittest
 
-- name: Copy master database from gittest
+- name: Copy any dependancies
   hosts: other_servers
-  become: no
+  become: false
   tasks:
     - name: Rsync users.db from gittest
       command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
-
-- name: Sync users and passwords from gittest to server1 and server2
-  hosts: other_servers
-  become: yes
-  vars:
-    sh_path: "/home/ubuntu/nvr/sync.py"
-    sc_path: "home/ubuntu/nvr/password.py"
-    local_db: "/home/ubuntu/nvr/users.db"
-    master_db: "/home/ubuntu/nvr/users_master.db"
-  tasks:
+      changed_when: false
 
     - name: Copy multiple scripts to remote machine
       copy:
@@ -51,25 +42,25 @@
         - /home/ubuntu/userdb/sync.py
         - /home/ubuntu/userdb/password.py
 
+- name: Sync users from gittest to server1 and server2
+  hosts: other_servers
+  become: true
+  vars:
+    sync_path: "/home/ubuntu/nvr/sync.py"
+    local_db: "/home/ubuntu/nvr/users.db"
+    master_db: "/home/ubuntu/nvr/users_master.db"
+  tasks:
     - name: Execute script to compare local vs master database
-      command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}"
+      command: python3 {{ sync_path }} "{{ local_db }}" "{{ master_db }}"
       register: script_output
 
     - name: script output  
       debug:
         var: script_output
 
-    - name: Execute script to compare passwords vs local database
-      command: python3 {{ sc_path }} "{{ local_db }}" "{{ master_db }}" 
-      register: password_output0
-
-    - name: password output  
-      debug:
-        var: password_output0 
-
 - name: Password sync serv 1
   hosts: main
-  become: no
+  become: false
   vars:
     sh_path: "/home/ubuntu/userdb/password.py"
     local_db: "/home/ubuntu/nvr/users.db"
