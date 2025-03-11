@@ -60,7 +60,7 @@
 
     - name: Execute script to compare passwords vs local database
       command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}" 
-      register: password_output
+      register: password_output0
 
     - name: password output  
       debug:
