@@ -37,6 +37,7 @@
   become: yes
   vars:
     sh_path: "/home/ubuntu/nvr/sync.py"
+    sc_path: "home/ubuntu/nvr/password.py"
     local_db: "/home/ubuntu/nvr/users.db"
     master_db: "/home/ubuntu/nvr/users_master.db"
   tasks:
@@ -59,7 +60,7 @@
         var: script_output
 
     - name: Execute script to compare passwords vs local database
-      command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}" 
+      command: python3 {{ sc_path }} "{{ local_db }}" "{{ master_db }}" 
       register: password_output0
 
     - name: password output  
