@@ -25,6 +25,36 @@ def compare_users(local_users, remote_users):
 
     return added_users, removed_users, modified_users
 
+def update_remote_db(remote_db, added_users, removed_users, modified_users):
+    """Apply changes to the remote database."""
+    conn = sqlite3.connect(remote_db)
+    cursor = conn.cursor()
+
+    # Add new users
+    for user, data in added_users.items():
+        cursor.execute("""
+            INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
+                              hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
+                              currently_in_ldap, last_modified)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+        """, (user, *data))
+
+    # Remove users
+    for user in removed_users:
+        cursor.execute("DELETE FROM users WHERE name = ?;", (user,))
+
+    # Modify users
+    for user, changes in modified_users.items():
+        cursor.execute("""
+            UPDATE users SET 
+                is_enabled = ?, access_level = ?, unit_group = ?, language = ?, remote_access = ?, 
+                hide_inaccessible_resources = ?, can_change_own_password = ?, is_ldap_user = ?, 
+                currently_in_ldap = ?, last_modified = CURRENT_TIMESTAMP
+            WHERE name = ?;
+        """, (*changes["new"], user))
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python3 sync.py <local_db> <remote_db>")
@@ -54,3 +84,6 @@ if __name__ == "__main__":
     print("\n=== Modified Users ===")
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
+
+    update_remote_db(remote_db, added, removed, modified)
+    print("\nRemote database updated successfully!")
