@@ -6,7 +6,6 @@ def get_users_and_passwords(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Execute the query to fetch users with passwords
     cursor.execute("""
         SELECT u.name, p.type, p.password
         FROM users u
@@ -31,8 +30,6 @@ def compare_users(local_users, remote_users):
                 }
 
     return modified_users
-
-
 
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
