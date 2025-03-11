@@ -30,15 +30,20 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
 
-    # Add new users
+    # Add new users (only if they don't already exist)
     for user, data in added_users.items():
-        cursor.execute("""
-    INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
-                      hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
-                      currently_in_ldap)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-""", (user, *data))
-
+        cursor.execute("SELECT COUNT(*) FROM users WHERE name = ?", (user,))
+        if cursor.fetchone()[0] == 0:  # User does not exist
+            try:
+                cursor.execute("""
+                    INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
+                                    hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
+                                    currently_in_ldap)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (user, *data))
+            except sqlite3.IntegrityError as e:
+                print(f"Error inserting user {user}: {e}")
+                continue
 
     # Remove users
     for user in removed_users:
@@ -53,6 +58,7 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
                 currently_in_ldap = ?
             WHERE name = ?;
         """, (*changes["new"], user))
+
     conn.commit()
     conn.close()
 
