@@ -6,7 +6,7 @@ def get_users(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users;")
-    users = {row[0]: tuple(map(int, row[1:])) for row in cursor.fetchall()}  # Ensure values are integers
+    users = {row[0]: tuple(map(int, row[1:])) for row in cursor.fetchall()}
     conn.close()
     return users
 
