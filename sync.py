@@ -1,16 +1,20 @@
 import sqlite3
 import sys
 
+# Define the column index of `can_change_own_password`
+CANNOT_CHANGE_INDEX = 7  # It's the 7th field in the database
+
 def get_users(db_path):
-    """Fetch users from the database and return as a dictionary."""
+    """Fetch users from the database and return as a dictionary, ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users;")
     
     users = {}
     for row in cursor.fetchall():
-        # Exclude `can_change_own_password` (index 7)
-        users[row[0]] = tuple(map(int, row[1:7] + row[8:]))  
+        # Remove `can_change_own_password` by skipping index 7
+        filtered_data = row[1:CANNOT_CHANGE_INDEX] + row[CANNOT_CHANGE_INDEX + 1:]
+        users[row[0]] = filtered_data  
     
     conn.close()
     return users
@@ -25,38 +29,37 @@ def get_passwords(db_path):
     return passwords
 
 def compare_users(local_users, remote_users):
-    """Compare two sets of user data, ignoring 'can_change_own_password' field."""
+    """Compare user data, ignoring 'can_change_own_password' field."""
     added_users = {user: data for user, data in remote_users.items() if user not in local_users}
     removed_users = {user: data for user, data in local_users.items() if user not in remote_users}
 
     modified_users = {}
     for user in remote_users:
-        if user in local_users:
-            if remote_users[user] != local_users[user]:  
-                modified_users[user] = {
-                    "old": local_users[user],
-                    "new": remote_users[user]
-                }
+        if user in local_users and remote_users[user] != local_users[user]:
+            modified_users[user] = {
+                "old": local_users[user],
+                "new": remote_users[user]
+            }
 
     return added_users, removed_users, modified_users
 
 def update_remote_db(remote_db, added_users, removed_users, modified_users, remote_passwords):
-    """Apply changes to the remote database, excluding 'can_change_own_password' field."""
+    """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
 
     # Add new users
     for user, data in added_users.items():
         cursor.execute("SELECT COUNT(*) FROM users WHERE name = ?", (user,))
-        if cursor.fetchone()[0] == 0:  
+        if cursor.fetchone()[0] == 0:
             try:
                 cursor.execute("""
                     INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
                                     hide_inaccessible_resources, is_ldap_user, currently_in_ldap)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (user, *data))  
+                """, (user, *data))
 
-                if user in remote_passwords:  
+                if user in remote_passwords:
                     user_type, user_password = remote_passwords[user]
                     cursor.execute("""
                         INSERT INTO passwords (name, type, password)
@@ -108,7 +111,7 @@ if __name__ == "__main__":
     for user, data in removed.items():
         print(f"{user}: {data}")
 
-    print("\n=== Modified Users ===")
+    print("\n=== Modified Users (ignoring 'can_change_own_password') ===")
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
