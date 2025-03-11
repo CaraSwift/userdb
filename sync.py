@@ -6,7 +6,12 @@ def get_users(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users;")
-    users = {row[0]: tuple(map(int, row[1:])) for row in cursor.fetchall()}
+    
+    users = {}
+    for row in cursor.fetchall():
+        # Exclude `can_change_own_password` (index 7)
+        users[row[0]] = tuple(map(int, row[1:7] + row[8:]))  
+    
     conn.close()
     return users
 
@@ -20,39 +25,38 @@ def get_passwords(db_path):
     return passwords
 
 def compare_users(local_users, remote_users):
-    """Compare two sets of user data and find differences."""
+    """Compare two sets of user data, ignoring 'can_change_own_password' field."""
     added_users = {user: data for user, data in remote_users.items() if user not in local_users}
     removed_users = {user: data for user, data in local_users.items() if user not in remote_users}
 
     modified_users = {}
     for user in remote_users:
-        if user in local_users and remote_users[user] != local_users[user]:
-            modified_users[user] = {
-                "old": local_users[user],
-                "new": remote_users[user]
-            }
+        if user in local_users:
+            if remote_users[user] != local_users[user]:  
+                modified_users[user] = {
+                    "old": local_users[user],
+                    "new": remote_users[user]
+                }
 
     return added_users, removed_users, modified_users
 
 def update_remote_db(remote_db, added_users, removed_users, modified_users, remote_passwords):
-    """Apply changes to the remote database, including inserting passwords for new users."""
+    """Apply changes to the remote database, excluding 'can_change_own_password' field."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
 
     # Add new users
     for user, data in added_users.items():
         cursor.execute("SELECT COUNT(*) FROM users WHERE name = ?", (user,))
-        if cursor.fetchone()[0] == 0:  # User does not exist
+        if cursor.fetchone()[0] == 0:  
             try:
                 cursor.execute("""
                     INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
-                                    hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
-                                    currently_in_ldap)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (user, *data))
+                                    hide_inaccessible_resources, is_ldap_user, currently_in_ldap)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (user, *data))  
 
-                 # Check if there's a password for this new user in the remote password table
-                if user in remote_passwords:  # Check if there's a password for this user
+                if user in remote_passwords:  
                     user_type, user_password = remote_passwords[user]
                     cursor.execute("""
                         INSERT INTO passwords (name, type, password)
@@ -66,17 +70,16 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
     # Remove users
     for user in removed_users:
         cursor.execute("DELETE FROM users WHERE name = ?;", (user,))
-        cursor.execute("DELETE FROM passwords WHERE username = ?;", (user,))  # Remove password if user is removed
+        cursor.execute("DELETE FROM passwords WHERE name = ?;", (user,))  
 
-    # Modify users
+    # Modify users (excluding can_change_own_password)
     for user, changes in modified_users.items():
         cursor.execute("""
             UPDATE users SET 
                 is_enabled = ?, access_level = ?, unit_group = ?, language = ?, remote_access = ?, 
-                hide_inaccessible_resources = ?, can_change_own_password = ?, is_ldap_user = ?, 
-                currently_in_ldap = ?
+                hide_inaccessible_resources = ?, is_ldap_user = ?, currently_in_ldap = ?
             WHERE name = ?;
-        """, (*changes["new"], user))
+        """, (*changes["new"], user))  
 
     conn.commit()
     conn.close()
@@ -94,9 +97,6 @@ if __name__ == "__main__":
     local_users = get_users(local_db)
     remote_users = get_users(remote_db)
     local_passwords = get_passwords(local_db)  
-
-    print(f"Local Users: {local_users}")
-    print(f"Remote Users: {remote_users}")
 
     added, removed, modified = compare_users(local_users, remote_users)
 
