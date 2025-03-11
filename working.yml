@@ -32,7 +32,7 @@
     - name: Rsync users.db from gittest
       command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
 
-- name: Sync users from gittest to server1 and server2
+- name: Sync users and passwords from gittest to server1 and server2
   hosts: other_servers
   become: yes
   vars:
@@ -57,6 +57,14 @@
     - name: script output  
       debug:
         var: script_output
+
+    - name: Execute script to compare passwords vs local database
+      command: python3 {{ sh_path }} "{{ local_db }}" "{{ master_db }}" 
+      register: password_output
+
+    - name: password output  
+      debug:
+        var: password_output0 
 
 - name: Password sync serv 1
   hosts: main
