@@ -35,8 +35,8 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
         cursor.execute("""
             INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
                               hide_inaccessible_resources, can_change_own_password, is_ldap_user, 
-                              currently_in_ldap, last_modified)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+                              currently_in_ldap)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         """, (user, *data))
 
     # Remove users
@@ -49,7 +49,7 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
             UPDATE users SET 
                 is_enabled = ?, access_level = ?, unit_group = ?, language = ?, remote_access = ?, 
                 hide_inaccessible_resources = ?, can_change_own_password = ?, is_ldap_user = ?, 
-                currently_in_ldap = ?, last_modified = CURRENT_TIMESTAMP
+                currently_in_ldap = ?
             WHERE name = ?;
         """, (*changes["new"], user))
     conn.commit()
