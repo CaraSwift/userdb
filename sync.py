@@ -14,8 +14,8 @@ def get_passwords(db_path):
     """Fetch passwords from the database and return as a dictionary."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM passwords;")
-    passwords = {row[0]: row[1] for row in cursor.fetchall()}
+    cursor.execute("SELECT name, type, password FROM passwords;")
+    passwords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
     conn.close()
     return passwords
 
@@ -39,9 +39,8 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, loca
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
 
-    # Add new users (only if they don't already exist)
+    # Add new users
     for user, data in added_users.items():
-        print(f"Adding new user: {user}, Data: {data}")  # Debugging print
         cursor.execute("SELECT COUNT(*) FROM users WHERE name = ?", (user,))
         if cursor.fetchone()[0] == 0:  # User does not exist
             try:
@@ -55,8 +54,8 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, loca
                 # Check if there's a password for this new user and insert it
                 if user in local_passwords:
                     cursor.execute("""
-                        INSERT INTO passwords (username, password)
-                        VALUES (?, ?)
+                        INSERT INTO passwords (name, type, password)
+                        VALUES (?, ?, ?)
                     """, (user, local_passwords[user]))
 
             except sqlite3.IntegrityError as e:
@@ -65,13 +64,11 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, loca
 
     # Remove users
     for user in removed_users:
-        print(f"Removing user: {user}")  # Debugging print
         cursor.execute("DELETE FROM users WHERE name = ?;", (user,))
         cursor.execute("DELETE FROM passwords WHERE username = ?;", (user,))  # Remove password if user is removed
 
     # Modify users
     for user, changes in modified_users.items():
-        print(f"Modifying user: {user}, OLD: {changes['old']}, NEW: {changes['new']}")  # Debugging print
         cursor.execute("""
             UPDATE users SET 
                 is_enabled = ?, access_level = ?, unit_group = ?, language = ?, remote_access = ?, 
@@ -95,7 +92,7 @@ if __name__ == "__main__":
 
     local_users = get_users(local_db)
     remote_users = get_users(remote_db)
-    local_passwords = get_passwords(local_db)  # Fetch passwords from local DB
+    local_passwords = get_passwords(local_db)  
 
     print(f"Local Users: {local_users}")
     print(f"Remote Users: {remote_users}")
