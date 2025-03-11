@@ -53,10 +53,12 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, loca
 
                 # Check if there's a password for this new user and insert it
                 if user in local_passwords:
+                    # Unpack the (type, password) tuple
+                    user_type, user_password = local_passwords[user]
                     cursor.execute("""
                         INSERT INTO passwords (name, type, password)
                         VALUES (?, ?, ?)
-                    """, (user, local_passwords[user]))
+                    """, (user, user_type, user_password))
 
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
