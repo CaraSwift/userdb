@@ -34,7 +34,7 @@ def compare_users(local_users, remote_users):
 
     return added_users, removed_users, modified_users
 
-def update_remote_db(remote_db, added_users, removed_users, modified_users, local_passwords):
+def update_remote_db(remote_db, added_users, removed_users, modified_users, remote_passwords):
     """Apply changes to the remote database, including inserting passwords for new users."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
@@ -51,10 +51,9 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, loca
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (user, *data))
 
-                # Check if there's a password for this new user and insert it
-                if user in local_passwords:
-                    # Unpack the (type, password) tuple
-                    user_type, user_password = local_passwords[user]
+                 # Check if there's a password for this new user in the remote password table
+                if user in remote_passwords:  # Check if there's a password for this user
+                    user_type, user_password = remote_passwords[user]
                     cursor.execute("""
                         INSERT INTO passwords (name, type, password)
                         VALUES (?, ?, ?)
