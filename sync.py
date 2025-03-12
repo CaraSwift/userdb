@@ -44,7 +44,7 @@ def compare_users(local_users, remote_users):
 
 from collections import defaultdict
 
-def compare_passwords(local_passwords, remote_passwords):
+def compare_password(local_passwords, remote_passwords):
     """Return all instances of users in remote_passwords that are not in local_passwords."""
     added_passwords = defaultdict(list)
 
