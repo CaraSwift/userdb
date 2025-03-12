@@ -22,7 +22,7 @@ def get_passwords(db_path):
     """Fetch passwords from the database and return as a dictionary."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("SELECT name, type, password FROM passwords;")
+    cursor.execute("SELECT * FROM passwords;")
     passwords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
     conn.close()
     return passwords
@@ -103,6 +103,7 @@ if __name__ == "__main__":
     local_users = get_users(local_db)
     remote_users = get_users(remote_db)
     local_passwords = get_passwords(local_db)  
+    remote_passwords = get_passwords(remote_db)
 
     added, removed, modified = compare_users(local_users, remote_users)
 
