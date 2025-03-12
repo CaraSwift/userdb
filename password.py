@@ -26,8 +26,8 @@ def compare_users(remote_users, gittest_users):
         if user in gittest_users:
             if remote_users[user] != gittest_users[user]:
                 modified_users[user] = {
-                    "old": gittest_users[user],   # Old data (current on gittest)
-                    "new": remote_users[user]     # New data (from remote)
+                    "old": gittest_users[user], 
+                    "new": remote_users[user]     
                 }
 
     return modified_users
@@ -50,8 +50,8 @@ def update_main_db(gittest_db, modified_users):
 
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
-    remote_users = get_users_and_passwords(remote_db)  # Remote users (should be applied)
-    gittest_users = get_users_and_passwords(gittest_db)  # Gittest users (to be updated)
+    remote_users = get_users_and_passwords(remote_db)  
+    gittest_users = get_users_and_passwords(gittest_db) 
 
     modified = compare_users(remote_users, gittest_users)
 

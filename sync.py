@@ -42,11 +42,18 @@ def compare_users(local_users, remote_users):
 
     return added_users, removed_users, modified_users
 
-def compare_password(local_passwords, remote_passwords):
-    """Compare passwords."""
-    added_passwords = {user: data for user, data in remote_passwords.items() if user not in local_passwords}
+from collections import defaultdict
 
-    return added_passwords
+def compare_passwords(local_passwords, remote_passwords):
+    """Return all instances of users in remote_passwords that are not in local_passwords."""
+    added_passwords = defaultdict(list)
+
+    for user, data in remote_passwords.items():
+        if user not in local_passwords:
+            added_passwords[user].append(data)
+
+    return dict(added_passwords)
+
 
 def update_remote_db(local_db, added_users, removed_users, modified_users, added_passwords):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
