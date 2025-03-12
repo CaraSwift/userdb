@@ -1,5 +1,5 @@
 ---
-- name: Sync Cathexis Database and Dependancies
+- name: Sync Cathexis User Database
   hosts: other_servers
   become: false 
   vars:
@@ -25,6 +25,10 @@
         mode: push
       delegate_to: gittest
 
+- name: Copy any dependancies
+  hosts: other_servers
+  become: false
+  tasks:
     - name: Rsync users.db from gittest
       command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
       changed_when: false
@@ -33,7 +37,7 @@
       copy:
         src: "{{ item }}"
         dest: "/home/ubuntu/nvr/{{ item | basename }}"
-        mode: '0755'
+        mode: '0777'
       with_items:
         - /home/ubuntu/userdb/sync.py
         - /home/ubuntu/userdb/password.py
