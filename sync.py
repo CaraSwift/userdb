@@ -44,7 +44,9 @@ def compare_users(local_users, remote_users):
 
 def compare_password(local_passwords, remote_passwords):
     """Compare user data, ignoring 'can_change_own_password' field."""
-    added_passwords = {user: data for user, data in remote_passwords.items() if user not in local_passwords}
+    added_passwords = {user: data for user, data in remote_passwords.items() 
+                       if user not in local_passwords or 'type' not in local_passwords[user]
+                       }
 
     return added_passwords
 
