@@ -1,11 +1,9 @@
 import sqlite3
 import sys
 
-#so it ignores can_change own password so as to not affect the way password works
 CANNOT_CHANGE_INDEX = 7 
 
 def get_users(db_path):
-    """Fetch users from the database and return as a dictionary, ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users;")
@@ -19,7 +17,6 @@ def get_users(db_path):
     return users
 
 def get_passwords(db_path):
-    """Fetch passwords from the database and return as a dictionary."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT name, type, password FROM passwords;")
@@ -28,10 +25,8 @@ def get_passwords(db_path):
     return passwords
 
 def compare_users(local_users, remote_users):
-    """Compare user data, ignoring 'can_change_own_password' field."""
     added_users = {user: data for user, data in remote_users.items() if user not in local_users}
     removed_users = {user: data for user, data in local_users.items() if user not in remote_users}
-
     modified_users = {}
     for user in remote_users:
         if user in local_users and remote_users[user] != local_users[user]:
@@ -39,11 +34,9 @@ def compare_users(local_users, remote_users):
                 "old": local_users[user],
                 "new": remote_users[user]
             }
-
     return added_users, removed_users, modified_users
 
 def update_remote_db(remote_db, added_users, removed_users, modified_users, remote_passwords):
-    """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
 
@@ -58,21 +51,18 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (user, *data))
 
+                # Add password if available
                 if user in remote_passwords:
                     user_type, user_password = remote_passwords[user]
                     cursor.execute("""
                         INSERT INTO passwords (name, type, password)
                         VALUES (?, ?, ?)
                     """, (user, user_type, user_password))
-                    print(type(remote_passwords))  # Should print <class 'dict'>
-                    print(remote_passwords)  # Should print the actual dictionary contents
-
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
                 continue
-        
-
-    # Remove users
+    
+    # Remove users and their passwords
     for user in removed_users:
         cursor.execute("DELETE FROM users WHERE name = ?;", (user,))
         cursor.execute("DELETE FROM passwords WHERE name = ?;", (user,))  
@@ -85,7 +75,7 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
                 hide_inaccessible_resources = ?, is_ldap_user = ?, currently_in_ldap = ?
             WHERE name = ?;
         """, (*changes["new"], user))  
-
+    
     conn.commit()
     conn.close()
 
@@ -117,5 +107,5 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    update_remote_db(local_db, added, removed, modified, local_passwords)  
+    update_remote_db(remote_db, added, removed, modified, local_passwords)  
     print("\nRemote database updated successfully!")
