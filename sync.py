@@ -52,11 +52,22 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
         cursor.execute("SELECT COUNT(*) FROM users WHERE name = ?", (user,))
         if cursor.fetchone()[0] == 0:
             try:
+                # Insert new user into 'users' table
                 cursor.execute("""
                     INSERT INTO users (name, is_enabled, access_level, unit_group, language, remote_access, 
                                     hide_inaccessible_resources, is_ldap_user, currently_in_ldap)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (user, *data))
+
+                # Ensure passwords are inserted correctly
+                if user in remote_passwords:
+                    user_type, user_password = remote_passwords[user]
+                    cursor.execute("""
+                        INSERT INTO passwords (name, type, password)
+                        VALUES (?, ?, ?)
+                    """, (user, user_type, user_password))
+                else:
+                    print(f"Warning: No password found for user {user} in remote_passwords!")
 
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
