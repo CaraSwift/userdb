@@ -1,8 +1,8 @@
 import sqlite3
 import sys
 
-# Define the column index of `can_change_own_password`
-CANNOT_CHANGE_INDEX = 7  # It's the 7th field in the database
+#so it ignores can_change own password so as to not affect the way password works
+CANNOT_CHANGE_INDEX = 7 
 
 def get_users(db_path):
     """Fetch users from the database and return as a dictionary, ignoring 'can_change_own_password'."""
@@ -12,7 +12,6 @@ def get_users(db_path):
     
     users = {}
     for row in cursor.fetchall():
-        # Remove `can_change_own_password` by skipping index 7
         filtered_data = row[1:CANNOT_CHANGE_INDEX] + row[CANNOT_CHANGE_INDEX + 1:]
         users[row[0]] = filtered_data  
     
@@ -65,10 +64,13 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
                         INSERT INTO passwords (name, type, password)
                         VALUES (?, ?, ?)
                     """, (user, user_type, user_password))
+                    print(type(remote_passwords))  # Should print <class 'dict'>
+                    print(remote_passwords)  # Should print the actual dictionary contents
 
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
                 continue
+        
 
     # Remove users
     for user in removed_users:
