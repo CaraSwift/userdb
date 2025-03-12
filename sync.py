@@ -42,18 +42,11 @@ def compare_users(local_users, remote_users):
 
     return added_users, removed_users, modified_users
 
-from collections import defaultdict
-
 def compare_password(local_passwords, remote_passwords):
-    """Return all instances of users in remote_passwords that are not in local_passwords."""
-    added_passwords = defaultdict(list)
+    """Compare passwords."""
+    added_passwords = {user: data for user, data in remote_passwords.items() if user and type not in local_passwords}
 
-    for user, data in remote_passwords.items():
-        if user not in local_passwords:
-            added_passwords[user].append(data)
-
-    return dict(added_passwords)
-
+    return added_passwords
 
 def update_remote_db(local_db, added_users, removed_users, modified_users, added_passwords):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
@@ -91,12 +84,13 @@ def update_remote_db(local_db, added_users, removed_users, modified_users, added
         """, (*changes["new"], user))  
 
     # Add new passwords
-    for user, passwords in added_passwords.items():
-        for password_data in passwords:
-            cursor.execute(
-            "INSERT INTO passwords_table (user, hash_type, password) VALUES (?, ?, ?)",
-            (user, password_data[0], password_data[1])
-        )
+    for user, data in added_passwords.items():
+        cursor.execute("SELECT COUNT(*) FROM passwords WHERE name = ?", (user,))
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("""
+                INSERT INTO passwords (name, type, password)
+                VALUES (?, ?, ?)
+            """, (user, *data))
 
     conn.commit()
     conn.close()
