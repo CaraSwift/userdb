@@ -122,7 +122,7 @@ if __name__ == "__main__":
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
     # Update the remote database with added, removed, and modified users
-    update_remote_db(remote_db, added, removed, modified, remote_passwords)
+    update_remote_db(local_db, added, removed, modified, local_passwords) 
 
     print("\nRemote database updated successfully!")
 
