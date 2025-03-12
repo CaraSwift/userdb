@@ -42,7 +42,13 @@ def compare_users(local_users, remote_users):
 
     return added_users, removed_users, modified_users
 
-def update_remote_db(remote_db, added_users, removed_users, modified_users, remote_passwords):
+def compare_password(local_passwords, remote_passwords):
+    """Compare user data, ignoring 'can_change_own_password' field."""
+    added_passwords = {user: data for user, data in remote_passwords.items() if user not in local_passwords}
+
+    return added_passwords
+
+def update_remote_db(remote_db, added_users, removed_users, modified_users):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
@@ -59,19 +65,9 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (user, *data))
 
-                # Ensure passwords are inserted correctly
-                if user in remote_passwords:
-                    user_type, user_password = remote_passwords[user]
-                    cursor.execute("""
-                        INSERT INTO passwords (name, type, password)
-                        VALUES (?, ?, ?)
-                    """, (user, user_type, user_password))
-                else:
-                    print(f"Warning: No password found for user {user} in remote_passwords!")
-
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
-                continue
+                continue        
 
     # Remove users
     for user in removed_users:
@@ -106,10 +102,15 @@ if __name__ == "__main__":
     remote_passwords = get_passwords(remote_db)
 
     added, removed, modified = compare_users(local_users, remote_users)
+    added_passwords = compare_password(local_passwords, remote_passwords)
 
     print("\n=== Added Users ===")
     for user, data in added.items():
         print(f"{user}: {data}")
+
+    print("\n=== Added Passwords ===")
+    for user, data in added_passwords.items():
+        print(f"{user}: {data}")   
 
     print("\n=== Removed Users ===")
     for user, data in removed.items():
