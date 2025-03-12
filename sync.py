@@ -67,7 +67,7 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
                 cursor.execute("""
                     INSERT INTO passwords (name, type, password)
                     VALUES (?, ?, ?)
-                """, (user, type, password))
+                """, (user, user_type, user_password))
 
             except sqlite3.IntegrityError as e:
                 print(f"Error inserting user {user}: {e}")
@@ -76,7 +76,8 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users, remo
     # Remove users
     for user in removed_users:
         cursor.execute("DELETE FROM users WHERE name = ?;", (user,))
-        cursor.execute("DELETE FROM passwords WHERE name = ?;", (user,))  
+        cursor.execute("DELETE FROM passwords WHERE name = ?;", (user,)) 
+         
     # Modify users (excluding can_change_own_password)
     for user, changes in modified_users.items():
         cursor.execute("""
