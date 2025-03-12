@@ -48,7 +48,7 @@ def compare_password(local_passwords, remote_passwords):
 
     return added_passwords
 
-def update_remote_db(remote_db, added_users, removed_users, modified_users):
+def update_remote_db(remote_db, added_users, removed_users, modified_users, added_passwords):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
     conn = sqlite3.connect(remote_db)
     cursor = conn.cursor()
@@ -82,6 +82,15 @@ def update_remote_db(remote_db, added_users, removed_users, modified_users):
                 hide_inaccessible_resources = ?, is_ldap_user = ?, currently_in_ldap = ?
             WHERE name = ?;
         """, (*changes["new"], user))  
+
+    # Add new passwords
+    for user, data in added_passwords.items():
+        cursor.execute("SELECT COUNT(*) FROM passwords WHERE name = ?", (user,))
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("""
+                INSERT INTO passwords (name, type, password)
+                VALUES (?, ?, ?)
+            """, (user, *data))
 
     conn.commit()
     conn.close()
@@ -120,5 +129,5 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    update_remote_db(local_db, added, removed, modified, added_passwords)  
+    update_remote_db(remote_db, added, removed, modified, added_passwords)  
     print("\nRemote database updated successfully!")
