@@ -129,5 +129,5 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    update_remote_db(remote_db, added, removed, modified, added_passwords)  
+    update_remote_db(local_db, added, removed, modified, added_passwords)  
     print("\nRemote database updated successfully!")
