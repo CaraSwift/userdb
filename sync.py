@@ -48,9 +48,9 @@ def compare_password(local_passwords, remote_passwords):
 
     return added_passwords
 
-def update_remote_db(remote_db, added_users, removed_users, modified_users, added_passwords):
+def update_remote_db(local_db, added_users, removed_users, modified_users, added_passwords):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
-    conn = sqlite3.connect(remote_db)
+    conn = sqlite3.connect(local_db)
     cursor = conn.cursor()
 
     # Add new users
