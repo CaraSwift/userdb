@@ -22,7 +22,7 @@ def get_passwords(db_path):
     """Fetch passwords from the database and return as a dictionary."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM passwords;")
+    cursor.execute("SELECT name, type, password FROM passwords;")
     passwords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
     conn.close()
     return passwords
@@ -95,18 +95,16 @@ if __name__ == "__main__":
         print("Usage: python3 sync.py <local_db> <remote_db>")
         sys.exit(1)
 
-    local_db = sys.argv[1]
-    remote_db = sys.argv[2]
+    local_db = sys.argv[1]  
+    remote_db = sys.argv[2]  
 
     print(f"Comparing: Local DB = {local_db}, Remote DB = {remote_db}")
 
-    # Fetch users and passwords for both local and remote databases
     local_users = get_users(local_db)
     remote_users = get_users(remote_db)
     local_passwords = get_passwords(local_db)  
-    remote_passwords = get_passwords(remote_db)  
+    remote_passwords = get_passwords(remote_db)
 
-    # Compare users to find added, removed, and modified users
     added, removed, modified = compare_users(local_users, remote_users)
 
     print("\n=== Added Users ===")
@@ -121,8 +119,5 @@ if __name__ == "__main__":
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
-    # Update the remote database with added, removed, and modified users
-    update_remote_db(local_db, added, removed, modified, local_passwords) 
-
+    update_remote_db(local_db, added, removed, modified, local_passwords)  
     print("\nRemote database updated successfully!")
-
