@@ -1,6 +1,7 @@
 import sqlite3
 import sys
 
+#get users and passwords query
 def get_users_and_passwords(db_path):
     """Fetch users and their passwords from the database where can_change_own_password = 1."""
     conn = sqlite3.connect(db_path)
@@ -13,11 +14,12 @@ def get_users_and_passwords(db_path):
         WHERE u.can_change_own_password = 1;
     """)
 
-    # Convert the result into a dictionary
+# Convert to dictionary
     users = {row[0]: {'type': row[1], 'password': row[2]} for row in cursor.fetchall()}
     conn.close()
     return users
 
+#compare passwords for changes from remote server
 def compare_users(remote_users, gittest_users):
     """Compare remote server users against gittest users and identify modifications."""
     modified_users = {}
@@ -32,6 +34,8 @@ def compare_users(remote_users, gittest_users):
 
     return modified_users
 
+
+#update password on main server
 def update_main_db(gittest_db, modified_users):
     """Apply password changes to the gittest database."""
     conn = sqlite3.connect(gittest_db)
@@ -48,6 +52,7 @@ def update_main_db(gittest_db, modified_users):
     conn.commit()
     conn.close()
 
+#defining vars 
 def sync_database(gittest_db, remote_db):
     """Sync remote database with gittest database."""
     remote_users = get_users_and_passwords(remote_db)  

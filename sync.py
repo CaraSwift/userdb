@@ -125,7 +125,7 @@ if __name__ == "__main__":
     for user, data in removed.items():
         print(f"{user}: {data}")
 
-    print("\n=== Modified Users (ignoring 'can_change_own_password') ===")
+    print("\n=== Modified Users ===")
     for user, changes in modified.items():
         print(f"{user}: OLD {changes['old']} -> NEW {changes['new']}")
 
