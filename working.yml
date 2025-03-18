@@ -23,7 +23,6 @@
         src: "{{ db_path }}"
         dest: "{{ db_path }}"
         mode: push
-      delegate_to: CARA-MAIN
 
 - name: Copy any dependancies
   hosts: other_servers
