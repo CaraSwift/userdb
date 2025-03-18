@@ -4,12 +4,18 @@
   become: false 
   vars:
     db_path: "/usr/nvr/unitconfig/db/users.db"
-  tasks:
 
+  pre_tasks:
+    - name: Gather facts
+      ansible.builtin.setup:
+
+  tasks:
     - name: Ensure sqlite3 is installed
-      package:
+      become: true
+      apt:
         name: sqlite3
         state: present
+
 
     - name: Check if Users and Password tables exist
       command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
