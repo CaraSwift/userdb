@@ -19,6 +19,7 @@
 
     - name: Copy data if doesn't exist
       when: "'users' not in db_checksqlite3.stdout"
+      become: false
       synchronize:
         src: "{{ db_path }}"
         dest: "{{ db_path }}"
