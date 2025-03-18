@@ -5,10 +5,6 @@
   vars:
     db_path: "/usr/nvr/unitconfig/db/users.db"
 
-  pre_tasks:
-    - name: Gather facts
-      ansible.builtin.setup:
-
   tasks:
     - name: Ensure sqlite3 is installed
       become: true
