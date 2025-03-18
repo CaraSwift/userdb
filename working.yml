@@ -1,12 +1,13 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: true
+  become: false
   vars:
     db_path: "/usr/nvr/unitconfig/db/users.db"
 
   tasks:
     - name: Ensure sqlite3 is installed
+      become: true
       apt:
         name: sqlite3
         state: present
@@ -19,7 +20,6 @@
 
     - name: Copy data if doesn't exist
       when: "'users' not in db_checksqlite3.stdout"
-      become: false
       synchronize:
         src: "{{ db_path }}"
         dest: "{{ db_path }}"
