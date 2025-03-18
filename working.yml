@@ -30,8 +30,8 @@
   hosts: other_servers
   become: false
   tasks:
-    - name: Rsync users.db from gittest
-      command: rsync -avz ubuntu@172.31.17.101:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_master.db
+    - name: Rsync users.db from main server
+      command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db
       changed_when: false
 
     - name: Copy multiple scripts to remote machine
