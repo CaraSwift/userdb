@@ -1,9 +1,9 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: false 
+  become: yes 
   vars:
-    db_path: "/home/ubuntu/nvr/users.db"
+    db_path: "/usr/nvr/unitconfig/db/users.db"
   tasks:
 
     - name: Ensure sqlite3 is installed
