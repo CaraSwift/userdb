@@ -1,17 +1,16 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: true
+  become: false
   vars:
     db_path: "/usr/nvr/unitconfig/db/users.db"
 
   tasks:
     - name: Ensure sqlite3 is installed
+      become: true
       apt:
         name: sqlite3
         state: present
-      vars:
-          ansible_ssh_pass: "{{ other_pass }}"
 
     - name: Check if Users and Password tables exist
       command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
@@ -26,8 +25,6 @@
         dest: "{{ db_path }}"
         mode: push
       delegate_to: CARA-MAIN 
-      vars:
-          ansible_ssh_pass: "{{ cara_pass }}" 
 
 - name: Copy any dependancies
   hosts: other_servers
