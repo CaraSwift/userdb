@@ -7,7 +7,6 @@
 
   tasks:
     - name: Ensure sqlite3 is installed
-      become: true
       apt:
         name: sqlite3
         state: present
