@@ -16,12 +16,8 @@
       changed_when: false
       failed_when: false
 
-    - name: check debug 
-      debug:
-        var: db_checksqlite3  
-
     - name: Copy data if doesn't exist
-      when: "'users' not in db_checksqlite3.stdout"
+      when: "'Users' not in db_checksqlite3.stdout"
       synchronize:
         src: "{{ db_path }}"
         dest: "{{ db_path }}"
