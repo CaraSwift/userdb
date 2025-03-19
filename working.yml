@@ -46,9 +46,9 @@
   hosts: other_servers
   become: true
   vars:
-    sync_path: "/home/ubuntu/nvr/sync.py"
-    local_db: "/home/ubuntu/nvr/users.db"
-    master_db: "/home/ubuntu/nvr/users_master.db"
+    sync_path: "/usr/nvr/sync.py"
+    local_db: "/usr/nvr/unitconfig/db/users.db"
+    master_db: "/usr/nvr/unitconfig/db/users_master.db"
   tasks:
     - name: Execute script to compare local vs master database
       command: python3 {{ sync_path }} "{{ local_db }}" "{{ master_db }}"
