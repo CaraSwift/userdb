@@ -32,7 +32,7 @@
       synchronize:
         src: /usr/nvr/unitconfig/db/users.db
         dest: /usr/nvr/unitconfig/db/users_master.db
-        mode: pull
+        mode: push
         private_key: "~/.ssh/ansible_id_rsa"
         ssh_args: "-o StrictHostKeyChecking=no"
       delegate_to: CARA-MAIN  
