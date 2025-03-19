@@ -30,7 +30,7 @@
   become: false
   tasks:
     - name: Rsync users.db from main server
-      command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db #works but need to figure out secret config for copying etc 
+      command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db
       changed_when: false
 
     - name: Copy multiple scripts to remote machine
