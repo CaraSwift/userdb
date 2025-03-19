@@ -25,13 +25,17 @@
         mode: push
       delegate_to: CARA-MAIN 
 
-# - name: Copy any dependancies
-#   hosts: other_servers
-#   become: false
-#   tasks:
-#     - name: Rsync users.db from main server
-#       command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db
-#       changed_when: false
+- name: Copy any dependancies
+  hosts: other_servers
+  become: false
+  tasks:
+    - name: Synchronize users.db from main server
+      synchronize:
+        src: cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db
+        dest: /usr/nvr/unitconfig/db/users_master.db
+        mode: pull
+        remote_src: yes
+      changed_when: false
 
     - name: Copy multiple scripts to remote machine
       copy:
