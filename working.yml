@@ -66,14 +66,19 @@
   hosts: main
   become: false
   vars:
-    sh_path: "/home/ubuntu/userdb/password.py"
-    local_db: "/home/ubuntu/nvr/users.db"
+    sh_path: "/home/cctvadmin/userdb/password.py"
+    local_db: "/usr/nvr/unitconfig/db/users.db"
     sev_1: "/home/ubuntu/nvr/users_sev1.db"
     sev_2: "/home/ubuntu/nvr/users_sev2.db"
   tasks:
 
-    - name: Rsync passwords from sev1
-      command: rsync -avz ubuntu@172.31.23.120:/home/ubuntu/nvr/users.db /home/ubuntu/nvr/users_sev1.db
+    - name: Synchronize passwords from server1
+      synchronize:
+        src: /usr/nvr/unitconfig/db/users.db
+        dest: /usr/nvr/unitconfig/db/users_sev1.db
+        mode: pull
+        private_key: "~/.ssh/ansible_id_rsa"
+        ssh_args: "-o StrictHostKeyChecking=no"
 
     - name: Execute script to compare local vs master database
       command: python3 {{ sh_path }} "{{ local_db }}" "{{ sev_1 }}"
