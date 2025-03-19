@@ -1,16 +1,17 @@
 ---
 - name: Sync Cathexis User Database
   hosts: other_servers
-  become: false
+  become: true
   vars:
     db_path: "/usr/nvr/unitconfig/db/users.db"
 
   tasks:
     - name: Ensure sqlite3 is installed
-      become: true
       apt:
         name: sqlite3
         state: present
+      vars:
+          ansible_ssh_pass: "{{ other_pass }}"
 
     - name: Check if Users and Password tables exist
       command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
@@ -18,20 +19,22 @@
       changed_when: false
       failed_when: false
 
-    # - name: Copy data if doesn't exist
-    #   when: "'users' not in db_checksqlite3.stdout"
-    #   synchronize:
-    #     src: "{{ db_path }}"
-    #     dest: "{{ db_path }}"
-    #     mode: push
-    #   delegate_to: CARA-MAIN  
+    - name: Copy data if doesn't exist
+      when: "'users' not in db_checksqlite3.stdout"
+      synchronize:
+        src: "{{ db_path }}"
+        dest: "{{ db_path }}"
+        mode: push
+      delegate_to: CARA-MAIN 
+      vars:
+          ansible_ssh_pass: "{{ cara_pass }}" 
 
 - name: Copy any dependancies
   hosts: other_servers
   become: false
   tasks:
     - name: Rsync users.db from main server
-      command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db
+      command: rsync -avz cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db /usr/nvr/unitconfig/db/users_master.db #works but need to figure out secret config for copying etc 
       changed_when: false
 
     - name: Copy multiple scripts to remote machine
