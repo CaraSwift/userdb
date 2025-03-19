@@ -30,7 +30,7 @@
   tasks:
     - name: Synchronize users.db from main server
       synchronize:
-        src: /usr/nvr/unitconfig/db/users.db
+        src: cctvadmin@172.17.4.73:/usr/nvr/unitconfig/db/users.db
         dest: /usr/nvr/unitconfig/db/users_master.db
         mode: pull
         private_key: "~/.ssh/ansible_id_rsa"
