@@ -11,7 +11,7 @@
         state: present
 
     - name: Check if Users and Password tables exist
-      command: sqlite3 "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
+      command: /usr/nvr/sqlite3_cat "{{ db_path }}" "SELECT name FROM sqlite_master WHERE type='table' AND (name='users' OR name='passwords');"
       register: db_checksqlite3
       changed_when: false
       failed_when: false
