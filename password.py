@@ -47,7 +47,7 @@ def update_main_db(gittest_db, modified_users):
             UPDATE passwords SET 
                 password = ?,
             WHERE name = ?;
-        """, (changes["new"]["password"], user))
+        """, (changes["new"], user))
 
     conn.commit()
     conn.close()
