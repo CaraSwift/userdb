@@ -19,11 +19,17 @@ def get_users(db_path):
     return users
 
 def get_passwords(db_path):
-    """Fetch passwords from the database and return as a dictionary."""
+    """Fetch passwords from the database and return as a dictionary with multiple values."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT name, type, password FROM passwords;")
-    passwords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
+    
+    passwords = {}
+    for name, type_, password in cursor.fetchall():
+        if name not in passwords:
+            passwords[name] = []
+        passwords[name].append((type_, password))
+    
     conn.close()
     return passwords
 
