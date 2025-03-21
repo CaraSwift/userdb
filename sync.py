@@ -46,7 +46,7 @@ def compare_password(local_passwords, remote_passwords):
     """Compare passwords."""
     added_passwords = {
         user: data for user, data in remote_passwords.items() 
-        if user not in local_passwords or not isinstance(local_passwords[user], list) or set(data) - set(local_passwords[user])
+        if user not in local_passwords, list or set(data) - set(local_passwords[user])
     }
     return added_passwords
 
