@@ -47,7 +47,7 @@ def update_main_db(pc1_db, modified_users):
             UPDATE passwords SET 
                 password = ?
             WHERE name = ? AND
-            WHERE type= ?;
+                type= ?;
         """, (changes["new"]["password"], user))
 
     conn.commit()
