@@ -66,7 +66,7 @@
   hosts: main
   become: false
   vars:
-    sh_path: "/usr/nvr/password.py"
+    sh_path: "/home/cctvadmin/userdb/password.py"
     local_db: "/usr/nvr/unitconfig/db/users.db"
     sev_1: "/usr/nvr/unitconfig/db/users_sev1.db"
     sev_2: "/usr/nvr/unitconfig/db/users_sev2.db"
