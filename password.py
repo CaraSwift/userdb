@@ -34,7 +34,6 @@ def compare_users(remote_users, pc1_users):
 
     return modified_users
 
-
 #update password on main server
 def update_main_db(pc1_db, modified_users):
     """Apply password changes to the gittest database."""

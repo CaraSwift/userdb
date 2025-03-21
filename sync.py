@@ -44,9 +44,12 @@ def compare_users(local_users, remote_users):
 
 def compare_password(local_passwords, remote_passwords):
     """Compare passwords."""
-    added_passwords = {user: data for user, data in remote_passwords.items() if user not in local_passwords}
-
+    added_passwords = {
+        user: data for user, data in remote_passwords.items() 
+        if user not in local_passwords or not isinstance(local_passwords[user], list) or set(data) - set(local_passwords[user])
+    }
     return added_passwords
+
 
 def update_remote_db(local_db, added_users, removed_users, modified_users, added_passwords):
     """Apply changes to the remote database, completely ignoring 'can_change_own_password'."""
