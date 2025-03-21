@@ -45,7 +45,7 @@ def update_main_db(gittest_db, modified_users):
     for user, changes in modified_users.items():
         cursor.execute("""
             UPDATE passwords SET 
-                type = ?, password = ?
+                password = ?,
             WHERE name = ?;
         """, (changes["new"]["password"], user))
 
