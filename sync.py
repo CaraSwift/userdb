@@ -91,13 +91,14 @@ def update_remote_db(local_db, added_users, removed_users, modified_users, added
         """, (*changes["new"], user))  
 
     # Add new passwords
-    for user, data in added_passwords.items():
+    for user, passwords in added_passwords.items():
         cursor.execute("SELECT COUNT(*) FROM passwords WHERE name = ?", (user,))
         if cursor.fetchone()[0] == 0:
-            cursor.execute("""
-                INSERT INTO passwords (name, type, password)
-                VALUES (?, ?, ?)
-            """, (user, *data))
+            for p_type, password in passwords:
+                cursor.execute("""
+                    INSERT INTO passwords (name, type, password)
+                    VALUES (?, ?, ?)
+                """, (user, p_type, password))
 
     conn.commit()
     conn.close()
