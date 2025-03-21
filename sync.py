@@ -97,7 +97,7 @@ def update_remote_db(local_db, added_users, removed_users, modified_users, added
             cursor.execute("""
                 INSERT INTO passwords (name, type, password)
                 VALUES (?, ?, ?)
-            """, (changes["new"]["password"], user, changes["new"]["type"]))
+            """, (user, *data))
 
     conn.commit()
     conn.close()
