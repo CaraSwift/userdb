@@ -41,14 +41,14 @@ def update_main_db(pc1_db, modified_users):
     conn = sqlite3.connect(pc1_db)
     cursor = conn.cursor()
 
-    # Modify users
+ # Modify users
     for user, changes in modified_users.items():
         cursor.execute("""
             UPDATE passwords SET 
                 password = ?
             WHERE name = ? AND
-                type= ?;
-        """, (changes["new"]["password"], user))
+                type = ?;
+        """, (changes["new"]["password"], user, changes["new"]["type"]))
 
     conn.commit()
     conn.close()
