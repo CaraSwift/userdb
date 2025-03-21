@@ -51,9 +51,8 @@ def compare_users(local_users, remote_users):
 def compare_password(local_passwords, remote_passwords):
     """Compare passwords."""
     added_passwords = {
-        user: data for user, data in remote_passwords.items() 
-        if user not in local_passwords or set(data) - set(local_passwords.get(user, []))
-    }
+        user: data for user, data in remote_passwords.items() if user not in local_passwords}
+    
     return added_passwords
 
 def update_remote_db(local_db, added_users, removed_users, modified_users, added_passwords):
